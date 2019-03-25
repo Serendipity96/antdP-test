@@ -6,6 +6,7 @@ export default {
   'menu.dashboard': 'Dashboard',
   'menu.dashboard2': '监控大盘',// 新建
   'menu.detail': '详细',// 新建
+  'menu.set': '设置',// 新建
   'menu.dashboard.analysis': '分析页',
   'menu.dashboard.monitor': '监控页',
   'menu.dashboard.workplace': '工作台',

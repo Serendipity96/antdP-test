@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Select, Row, Col } from 'antd';
+import { Select } from 'antd';
 import TimelineChart from '@/components/Charts/TimelineChart';
 
 const { Option } = Select;
@@ -55,14 +55,10 @@ class Detail extends Component {
     const { chartData1, chartData2 } = this.state;
     return (
       <div>
-        <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
-          <Col md={8} sm={24}>
-            <Select placeholder="请选择机器" style={{ width: '100%' }} onChange={this.handleChange.bind(this)}>
-              <Option value="0">机器一</Option>
-              <Option value="1">机器二</Option>
-            </Select>
-          </Col>
-        </Row>
+        <Select placeholder="请选择机器" style={{ width: '30%' }} onChange={this.handleChange.bind(this)}>
+          <Option value="0">机器一</Option>
+          <Option value="1">机器二</Option>
+        </Select>
         <TimelineChart
           height={400}
           data={chartData1}

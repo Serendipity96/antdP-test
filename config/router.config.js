@@ -65,6 +65,14 @@ export default [
         component: './Detail',
 
       },
+      // 设置
+      {
+        path: '/set',
+        name: 'set',
+        icon: 'table',
+        component: './Set',
+
+      },
       // forms
       {
         path: '/form',

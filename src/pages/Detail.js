@@ -6,74 +6,69 @@ const { Option } = Select;
 
 class Detail extends Component {
   state = {
-    chartData1: [],
-    chartData2: [],
+    chartData: [],
+    cpuData: [],
   };
 
   componentWillMount() {
-    const { chartData1, chartData2 } = this.state;
+    this.getData();
+
+    const tmp = [];
     for (let i = 0; i < 20; i += 1) {
-      chartData1.push({
-        x: (new Date().getTime()) + (1000 * 60 * 30 * i),
-        y1: Math.floor(Math.random() * 100) + 10,
-      });
-      chartData2.push({
-        x: (new Date().getTime()) + (1000 * 60 * 30 * i),
-        y2: Math.floor(Math.random() * 100) + 100,
+      tmp.push({
+        x: i,
+        y2: 1.5,
       });
     }
     this.setState({
-      chartData1, chartData2,
+      chartData: tmp,
     });
   }
 
+  getData() {
+    fetch(`http://127.0.0.1:8081/getHostParam`, {
+      method: 'GET',
+    })
+      .then(res => res.text())
+      .then(data => {
+        const d = JSON.parse(data);
+        const d1 = d.data;
+        const d2 = d1['1'];
+        const d3 = d2.cpu;
+        this.setState({ cpuData: d3 });
+      });
+  }
+
   handleChange(value) {
-    const data1 = [];
-    const data2 = [];
-    if (value === '1') {
-      for (let i = 0; i < 20; i += 1) {
-        data2.push({
-          x: (new Date().getTime()) + (1000 * 60 * 30 * i),
-          y2: 1000,
+    const { cpuData } = this.state;
+    const tmp = [];
+    if (value === '0') {
+      for (let i = 0; i < cpuData.length; i += 1) {
+        tmp.push({
+          x: new Date().getTime() + 1000 * 60 * 30 * i,
+          y1: cpuData[i],
         });
       }
-      this.setState({ chartData2: data2 });
-    } else if (value === '0') {
-      for (let i = 0; i < 20; i += 1) {
-        data1.push({
-          x: (new Date().getTime()) + (1000 * 60 * 30 * i),
-          y1: 10,
-        });
-
-      }
-      this.setState({ chartData1: data1 });
-
+      this.setState({ chartData: tmp });
     }
   }
 
   render() {
-    const { chartData1, chartData2 } = this.state;
+    const { chartData } = this.state;
     return (
       <div>
-        <Select placeholder="请选择机器" style={{ width: '30%' }} onChange={this.handleChange.bind(this)}>
+        <Select
+          placeholder="请选择机器"
+          style={{ width: '30%' }}
+          // eslint-disable-next-line
+          onChange={this.handleChange.bind(this)}
+        >
           <Option value="0">机器一</Option>
-          <Option value="1">机器二</Option>
         </Select>
-        <TimelineChart
-          height={400}
-          data={chartData1}
-          titleMap={{ y1: 'CPU使用率' }}
-        />
-        <TimelineChart
-          height={300}
-          data={chartData2}
-          titleMap={{ y2: '内存占用率' }}
-        />
+        <TimelineChart height={300} data={chartData} titleMap={{ y1: 'cpu使用率' }} />
       </div>
     );
   }
-
 }
 
 export default Detail;
-

@@ -49,7 +49,7 @@ class Detail extends Component {
   componentDidMount() {
     this.timer = setInterval(() => {
       this.getData();
-    }, 5000);
+    }, 1000);
   }
 
   componentWillUnmount() {
@@ -89,20 +89,20 @@ class Detail extends Component {
         const net = [];
         for (let i = 0; i < d2.cpu.length; i += 1) {
           cpu.push({
-            x: new Date().getTime() + 1000 * 60 * 30 * i,
+            x: new Date().getTime() - 1000 * 60 * 30 * i,
             y1: d2.cpu[i],
           });
           mem.push({
-            x: new Date().getTime() + 1000 * 60 * 30 * i,
+            x: new Date().getTime() - 1000 * 60 * 30 * i,
             y1: d2.memory[i],
           });
           io.push({
-            x: new Date().getTime() + 1000 * 60 * 30 * i,
+            x: new Date().getTime() - 1000 * 60 * 30 * i,
             y1: d2.ioRead[i],
             y2: d2.ioWrite[i],
           });
           net.push({
-            x: new Date().getTime() + 1000 * 60 * 30 * i,
+            x: new Date().getTime() - 1000 * 60 * 30 * i,
             y1: d2.netSend[i],
             y2: d2.netReceive[i],
           });
@@ -121,7 +121,11 @@ class Detail extends Component {
 
     return (
       <div>
-        <Select defaultValue="0" placeholder="请选择机器" style={{ width: '30%' }}>
+        <Select
+          defaultValue="0"
+          placeholder="请选择机器"
+          style={{ width: '30%', marginBottom: 15 }}
+        >
           <Option value="0">机器一</Option>
         </Select>
 
@@ -133,5 +137,4 @@ class Detail extends Component {
     );
   }
 }
-
 export default Detail;

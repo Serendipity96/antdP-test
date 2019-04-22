@@ -3,14 +3,14 @@ export default {
   'menu.login': '登录',
   'menu.register': '注册',
   'menu.register.result': '注册结果',
-  'menu.dashboard': 'Dashboard',
-  'menu.dashboard2': '监控大盘',// 新建
-  'menu.detail': '详细',// 新建
-  'menu.set': '设置',// 新建
-  'menu.dashboard.analysis': '分析页',
+  'menu.dashboard': '监控大盘',
+  'menu.dashboard.dashboard2': '总体数据', // 新建
+  'menu.detail': '监控详情', // 新建
+  'menu.set': '监控设置', // 新建
+  'menu.dashboard.analysis': '总体分析', // 修改
   'menu.dashboard.monitor': '监控页',
   'menu.dashboard.workplace': '工作台',
-  'menu.dashboard.new': '新建dashboard ',// 测试新建
+  'menu.dashboard.new': '新建dashboard ', // 测试新建
   'menu.form': '表单页',
   'menu.form.basicform': '基础表单',
   'menu.form.stepform': '分步表单',

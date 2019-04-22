@@ -1,13 +1,11 @@
-import React, { Component } from 'react'
-import { Card, Col, Row } from 'antd';
-import styles from './List/BasicList.less';
+import React, { Component } from 'react';
+import { Card, Col, Row } from 'antd/lib/index';
+import styles from '../List/BasicList.less';
 
-class Dashboard2 extends Component{
-  state = {
+class Dashboard2 extends Component {
+  state = {};
 
-  }
-
-  render(){
+  render() {
     const Info = ({ title, value, bordered }) => (
       <div className={styles.headerInfo}>
         <span>{title}</span>
@@ -31,10 +29,8 @@ class Dashboard2 extends Component{
           </Row>
         </Card>
       </div>
-    )
+    );
   }
-
 }
 
 export default Dashboard2;
-

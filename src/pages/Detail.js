@@ -10,6 +10,8 @@ class Detail extends Component {
     memChart: [],
     ioChart: [],
     netChart: [],
+    connectionsChart: [],
+    tpsChart: [],
   };
 
   componentWillMount() {
@@ -17,6 +19,8 @@ class Detail extends Component {
     const mem = [];
     const io = [];
     const net = [];
+    const connections = [];
+    const tps = [];
     for (let i = 0; i < 20; i += 1) {
       cpu.push({
         x: new Date().getTime() + 1000 * 60 * 30 * i,
@@ -36,39 +40,48 @@ class Detail extends Component {
         y1: 0.8,
         y2: 3.2,
       });
+      connections.push({
+        x: new Date().getTime() + 1000 * 60 * 30 * i,
+        y1: 3.2,
+      });
+      tps.push({
+        x: new Date().getTime() + 1000 * 60 * 30 * i,
+        y1: 0.8,
+      });
     }
     this.setState({
       cpuChart: cpu,
       memChart: mem,
       ioChart: io,
       netChart: net,
+      connectionsChart: connections,
+      tpsChart: tps,
     });
-    this.getData();
+    this.getData(1);
   }
 
   componentDidMount() {
-    this.timer = setInterval(() => {
-      this.getData();
-    }, 1000);
+    // this.timer = setInterval(() => {
+    //   this.getData();
+    // }, 1000);
   }
 
   componentWillUnmount() {
-    this.timer && clearInterval(this.timer); // eslint-disable-line
+    // this.timer && clearInterval(this.timer); // eslint-disable-line
   }
 
-  getData() {
+  getData(id) {
     const timeEnd = Math.round(new Date().getTime() / 1000);
     // const timeStart = timeEnd - 86400;
     // const timeEnd = 1555316741;
     const timeStart = 1554964655;
     const timeGran = 1;
-    const hostId = 1;
     const str = {
       /* eslint-disable */
       timeEnd: timeEnd,
       timeStart: timeStart,
       timeGran: timeGran,
-      hostId: hostId,
+      hostId: id,
       /* eslint-disable */
     };
 
@@ -81,12 +94,16 @@ class Detail extends Component {
       .then(data => {
         const d = JSON.parse(data);
         const d1 = d.data;
-        const d2 = d1['1'];
+        console.log('d1');
+        console.log(d1);
+        const d2 = d1[id];
 
         const cpu = [];
         const mem = [];
         const io = [];
         const net = [];
+        const connections = [];
+        const tps = [];
         for (let i = 0; i < d2.cpu.length; i += 1) {
           cpu.push({
             x: new Date().getTime() - 1000 * 60 * 30 * i,
@@ -106,33 +123,52 @@ class Detail extends Component {
             y1: d2.netSend[i],
             y2: d2.netReceive[i],
           });
+          connections.push({
+            x: new Date().getTime() - 1000 * 60 * 30 * i,
+            y1: d2.sqlConnections[i],
+          });
+          tps.push({
+            x: new Date().getTime() - 1000 * 60 * 30 * i,
+            y1: d2.sqlTPS[i],
+          });
         }
         this.setState({
           cpuChart: cpu,
           memChart: mem,
           ioChart: io,
           netChart: net,
+          connectionsChart: connections,
+          tpsChart: tps,
         });
       });
   }
 
+  handleChangeOption(id) {
+    this.getData(id);
+  }
+
   render() {
-    const { cpuChart, memChart, ioChart, netChart } = this.state;
+    const { cpuChart, memChart, ioChart, netChart, connectionsChart, tpsChart } = this.state;
 
     return (
       <div>
         <Select
-          defaultValue="0"
+          defaultValue="1"
           placeholder="请选择机器"
           style={{ width: '30%', marginBottom: 15 }}
+          onChange={this.handleChangeOption.bind(this)}
         >
-          <Option value="0">机器一</Option>
+          <Option value="1">机器一</Option>
+          <Option value="2">机器二</Option>
+          <Option value="3">机器三</Option>
         </Select>
 
         <TimelineChart height={300} data={cpuChart} titleMap={{ y1: 'cpu使用率' }} />
         <TimelineChart height={300} data={memChart} titleMap={{ y1: '内存使用率' }} />
         <TimelineChart height={300} data={ioChart} titleMap={{ y1: 'io读', y2: 'io写' }} />
         <TimelineChart height={300} data={netChart} titleMap={{ y1: '网络上传', y2: '网络下载' }} />
+        <TimelineChart height={300} data={connectionsChart} titleMap={{ y1: '数据库连接数' }} />
+        <TimelineChart height={300} data={tpsChart} titleMap={{ y1: 'TPS' }} />
       </div>
     );
   }

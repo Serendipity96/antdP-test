@@ -22,25 +22,32 @@ export default [
     routes: [
       // dashboard
       { path: '/', redirect: '/dashboard/dashboard2' },
+      // {
+      //   path: '/dashboard',
+      //   name: 'dashboard',
+      //   icon: 'dashboard',
+      //   routes: [
+      //     {
+      //       path: '/dashboard/dashboard2',
+      //       name: 'dashboard2',
+      //       component: './Dashboard/Dashboard2',
+      //     },
+      //     {
+      //       path: '/dashboard/analysis',
+      //       name: 'analysis',
+      //       component: './Dashboard/Analysis',
+      //     },
+      //   ],
+      // },
+      // list
+
+      // dashboard2 大盘
       {
-        path: '/dashboard',
+        path: '/dashboard/dashboard2',
         name: 'dashboard',
         icon: 'dashboard',
-        routes: [
-          {
-            path: '/dashboard/dashboard2',
-            name: 'dashboard2',
-            component: './Dashboard/Dashboard2',
-          },
-          {
-            path: '/dashboard/analysis',
-            name: 'analysis',
-            component: './Dashboard/Analysis',
-          },
-        ],
+        component: './Dashboard/Dashboard2',
       },
-      // dashboard2 大盘
-
       // 详细
       {
         path: '/detail',

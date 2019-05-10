@@ -73,8 +73,7 @@ class Detail extends Component {
   getData(id) {
     const timeEnd = Math.round(new Date().getTime() / 1000);
     // const timeStart = timeEnd - 86400;
-    // const timeEnd = 1555316741;
-    const timeStart = 1554964655;
+    const timeStart = 1557386915;
     const timeGran = 1;
     const str = {
       /* eslint-disable */

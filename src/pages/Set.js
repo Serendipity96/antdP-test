@@ -5,6 +5,7 @@ import styles from './Set.less';
 const TabPane = Tabs.TabPane;
 const CheckboxGroup = Checkbox.Group;
 const RadioGroup = Radio.Group;
+const postRulesUrl = 'http://127.0.0.1:8081/postRules';
 
 class Set extends Component {
   state = {
@@ -14,8 +15,10 @@ class Set extends Component {
     cpuNum: 70,
     memNum: 60,
     cpuRule: '0',
+    cpuRuleName: '>',
     memRule: '0',
-    rulesCount: 1,
+    memRuleName: '>',
+    rules: [],
   };
 
   showModal = () => {
@@ -48,11 +51,11 @@ class Set extends Component {
   }
 
   changeCpuRule(e) {
-    this.setState({ cpuRule: e.target.value });
+    this.setState({ cpuRule: e.target.value, cpuRuleName: e.target.data_rule });
   }
 
   changeMemRule(e) {
-    this.setState({ memRule: e.target.value });
+    this.setState({ memRule: e.target.value, memRuleName: e.target.data_rule });
   }
 
   changeCpuNum(value) {
@@ -63,7 +66,7 @@ class Set extends Component {
     this.setState({ memNum: value });
   }
 
-  togglecpuDisabled() {
+  togglecpuIsChecked() {
     this.setState({
       cpuIsChecked: !this.state.cpuIsChecked,
     });
@@ -81,38 +84,79 @@ class Set extends Component {
       cpuIsChecked,
       memIsChecked,
       cpuRule,
+      cpuRuleName,
       cpuNum,
       memRule,
+      memRuleName,
       memNum,
-      rulesCount,
+      rules,
     } = this.state;
     if (!machines) {
       console.log('请选择机器');
       return;
     }
-    let rulesList = [];
-    rulesList.push({ machines: machines });
+    const rulesList = [];
+    const rulesListNames = [];
+    const machineInt = [];
+    const machineNames = [];
+
+    for (let i = 0; i < machines.length; i += 1) {
+      if (machines[i] === '1') {
+        machineInt.push(1);
+        machineNames.push('机器一');
+      }
+      if (machines[i] === '2') {
+        machineInt.push(2);
+        machineNames.push('机器二');
+      }
+      if (machines[i] === '3') {
+        machineInt.push(3);
+        machineNames.push('机器三');
+      }
+    }
+    rulesList.push(machineInt);
+    rulesListNames.push(machineNames);
     if (cpuIsChecked === false && memIsChecked === false) {
       console.log('请为机器选择一条约束');
       return;
     }
 
     if (cpuIsChecked) {
-      let tmp = [0, cpuRule, cpuNum];
-      rulesList.push({ cpuRules: tmp });
+      rulesList.push([0, Number(cpuRule), cpuNum]);
+      rulesListNames.push(['cpu使用率', cpuRuleName, cpuNum]);
     }
     if (memIsChecked) {
-      let tmp = [1, memRule, memNum];
-      rulesList.push({ memRules: tmp });
+      rulesList.push([1, Number(memRule), memNum]);
+      rulesListNames.push(['内存使用率', memRuleName, memNum]);
     }
+    this.setState({ rules: rules.concat({ rulesListNames }) });
     console.log(rulesList);
-    this.setState({ rulesCount: rulesCount + 1 });
+    console.log(rulesListNames);
+    fetch(postRulesUrl, {
+      method: 'POST',
+      body: JSON.stringify(rulesList),
+    }).then(res => res.text());
   }
 
-  renderRulesList() {
-    const rulesCount = this.state.rulesCount;
-
-    if (rulesCount > 0) {
+  renderRulesList(rules) {
+    let children = [];
+    if (rules.length > 0) {
+      for (let i = 0; i < rules.length; i += 1) {
+        const r = rules[i].rulesListNames;
+        const nameTmp = r[0];
+        let nameStr = '';
+        for (let j = 0; j < nameTmp.length; j += 1) {
+          nameStr += nameTmp[j] + ' ';
+        }
+        let ruleL = [];
+        for (let k = 1; k < r.length; k += 1) {
+          let rule = r[k];
+          let str = rule[0] + ' ' + rule[1] + ' ' + rule[2] + ' ; ';
+          ruleL.push(str);
+        }
+        const obj = { name: nameStr, rule: ruleL };
+        children.push(obj);
+      }
       return (
         <div>
           <Row
@@ -130,19 +174,33 @@ class Set extends Component {
               操作
             </Col>
           </Row>
-          <Row gutter={24} className={styles.rowDec} style={{ marginRight: 0, marginLeft: 0 }}>
-            <Col xl={8} lg={24} md={24} sm={24} xs={24}>
-              机器一
-            </Col>
-            <Col xl={8} lg={24} md={24} sm={24} xs={24}>
-              cpu>80%
-            </Col>
-            <Col xl={8} lg={24} md={24} sm={24} xs={24}>
-              删除
-            </Col>
-          </Row>
+          {children.map((item, index) => {
+            return (
+              <Row
+                gutter={24}
+                className={styles.rowDec}
+                style={{ marginRight: 0, marginLeft: 0 }}
+                key={index}
+              >
+                <Col xl={8} lg={24} md={24} sm={24} xs={24}>
+                  {item.name}
+                </Col>
+                <Col xl={8} lg={24} md={24} sm={24} xs={24}>
+                  {item.rule.map(itm => {
+                    return itm;
+                  })}
+                </Col>
+                <Col xl={8} lg={24} md={24} sm={24} xs={24}>
+                  <a>删除</a>
+                </Col>
+              </Row>
+            );
+          })}
         </div>
       );
+    }
+    if (rules.length === 0) {
+      return <div>暂无报警规则</div>;
     }
   }
 
@@ -152,7 +210,7 @@ class Set extends Component {
       { label: '机器二', value: '2' },
       { label: '机器三', value: '3' },
     ];
-
+    const { rules } = this.state;
     return (
       <div style={{ background: '#ffffff', height: '100%' }}>
         <Tabs defaultActiveKey="1" onChange={this.med} style={{ padding: '24px' }}>
@@ -160,7 +218,7 @@ class Set extends Component {
             <Button type="primary" onClick={this.showModal} style={{ marginBottom: 10 }}>
               添加
             </Button>
-            {this.renderRulesList()}
+            {this.renderRulesList(rules)}
             <Modal
               title="报警规则"
               visible={this.state.visible}
@@ -174,16 +232,22 @@ class Set extends Component {
               />
               <br />
 
-              <Checkbox onChange={this.togglecpuDisabled.bind(this)}>CPU使用率</Checkbox>
+              <Checkbox onChange={this.togglecpuIsChecked.bind(this)}>CPU使用率</Checkbox>
               <RadioGroup
                 onChange={this.changeCpuRule.bind(this)}
                 defaultValue="0"
                 disabled={!this.state.cpuIsChecked}
                 style={{ margin: '0 20px' }}
               >
-                <Radio value="0">大于</Radio>
-                <Radio value="1">等于</Radio>
-                <Radio value="2">小于</Radio>
+                <Radio value="0" data_rule=">">
+                  大于
+                </Radio>
+                <Radio value="1" data_rule="=">
+                  等于
+                </Radio>
+                <Radio value="2" data_rule="<">
+                  小于
+                </Radio>
               </RadioGroup>
               <InputNumber
                 min={1}
@@ -204,9 +268,15 @@ class Set extends Component {
                 disabled={!this.state.memIsChecked}
                 style={{ margin: '5px 20px' }}
               >
-                <Radio value="0">大于</Radio>
-                <Radio value="1">等于</Radio>
-                <Radio value="2">小于</Radio>
+                <Radio value="0" data_rule=">">
+                  大于
+                </Radio>
+                <Radio value="1" data_rule="=">
+                  等于
+                </Radio>
+                <Radio value="2" data_rule="<">
+                  小于
+                </Radio>
               </RadioGroup>
               <InputNumber
                 min={1}

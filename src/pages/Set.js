@@ -1,25 +1,86 @@
 import React, { Component } from 'react';
-import { Tabs, InputNumber, Button, Modal, Checkbox, Radio, Col, Row } from 'antd';
+import { Tabs, InputNumber, Button, Modal, Checkbox, Radio, Col, Row, Select } from 'antd';
 import styles from './Set.less';
 
 const TabPane = Tabs.TabPane;
-const CheckboxGroup = Checkbox.Group;
 const RadioGroup = Radio.Group;
+const Option = Select.Option;
 const postRulesUrl = 'http://127.0.0.1:8081/postRules';
+const getRulesListUrl = 'http://127.0.0.1:8081/getRulesList';
 
 class Set extends Component {
   state = {
     visible: false,
     cpuIsChecked: false,
     memIsChecked: false,
+    machine: 1,
     cpuNum: 70,
     memNum: 60,
     cpuRule: '0',
     cpuRuleName: '>',
     memRule: '0',
     memRuleName: '>',
-    rules: [],
+    rules: [{ rulesListNames: ['机器一', ['cpu使用率', '>', 70]] }],
   };
+
+  componentDidMount() {
+    let _this = this;
+    fetch(getRulesListUrl, {
+      method: 'GET',
+    })
+      .then(res => res.json())
+      .then(res => {
+        let ch = [];
+        let machineName = '';
+        for (let i = 0; i < res.length; i++) {
+          const machineId = res[i].machine_id;
+          if (machineId === 1) {
+            machineName = '机器一';
+          }
+          if (machineId === 2) {
+            machineName = '机器二';
+          }
+          if (machineId === 3) {
+            machineName = '机器三';
+          }
+          let r = JSON.parse(res[i].rule);
+          let rules = [];
+          let rulesListNames = [];
+          rulesListNames.push(machineName);
+          for (let j = 0; j < r.length; j++) {
+            let rr = r[j];
+            if (rr[0] === 0) {
+              rules.push('cpu使用率');
+              if (rr[1] === 0) {
+                rules.push('>');
+              } else if (rr[1] === 1) {
+                rules.push('=');
+              } else if (rr[1] === 2) {
+                rules.push('<');
+              }
+            }
+            if (rr[0] === 1) {
+              rules.push('内存使用率');
+              if (rr[1] === 0) {
+                rules.push('>');
+              } else if (rr[1] === 1) {
+                rules.push('=');
+              } else if (rr[1] === 2) {
+                rules.push('<');
+              }
+            }
+            rules.push(rr[2]);
+            rulesListNames.push(rules);
+            rules = [];
+          }
+
+          ch.push({ rulesListNames });
+        }
+        _this.setState({ rules: ch });
+        console.log('ch');
+        console.log(ch);
+      });
+  }
 
   showModal = () => {
     this.setState({
@@ -44,9 +105,9 @@ class Set extends Component {
     console.log(key);
   }
 
-  changeMachine(checkedValues) {
+  chooseMachine(value) {
     this.setState({
-      machines: checkedValues,
+      machine: Number(value),
     });
   }
 
@@ -80,7 +141,7 @@ class Set extends Component {
 
   postRules() {
     const {
-      machines,
+      machine,
       cpuIsChecked,
       memIsChecked,
       cpuRule,
@@ -91,31 +152,22 @@ class Set extends Component {
       memNum,
       rules,
     } = this.state;
-    if (!machines) {
-      console.log('请选择机器');
-      return;
-    }
+
     const rulesList = [];
     const rulesListNames = [];
-    const machineInt = [];
-    const machineNames = [];
+    let machineName = '';
 
-    for (let i = 0; i < machines.length; i += 1) {
-      if (machines[i] === '1') {
-        machineInt.push(1);
-        machineNames.push('机器一');
-      }
-      if (machines[i] === '2') {
-        machineInt.push(2);
-        machineNames.push('机器二');
-      }
-      if (machines[i] === '3') {
-        machineInt.push(3);
-        machineNames.push('机器三');
-      }
+    if (machine === 1) {
+      machineName = '机器一';
     }
-    rulesList.push(machineInt);
-    rulesListNames.push(machineNames);
+    if (machine === 2) {
+      machineName = '机器二';
+    }
+    if (machine === 3) {
+      machineName = '机器三';
+    }
+    rulesList.push(machine);
+    rulesListNames.push(machineName);
     if (cpuIsChecked === false && memIsChecked === false) {
       console.log('请为机器选择一条约束');
       return;
@@ -130,8 +182,6 @@ class Set extends Component {
       rulesListNames.push(['内存使用率', memRuleName, memNum]);
     }
     this.setState({ rules: rules.concat({ rulesListNames }) });
-    console.log(rulesList);
-    console.log(rulesListNames);
     fetch(postRulesUrl, {
       method: 'POST',
       body: JSON.stringify(rulesList),
@@ -139,22 +189,21 @@ class Set extends Component {
   }
 
   renderRulesList(rules) {
+    console.log('rules');
+    console.log(rules);
     let children = [];
     if (rules.length > 0) {
       for (let i = 0; i < rules.length; i += 1) {
         const r = rules[i].rulesListNames;
-        const nameTmp = r[0];
-        let nameStr = '';
-        for (let j = 0; j < nameTmp.length; j += 1) {
-          nameStr += nameTmp[j] + ' ';
-        }
+        console.log('r');
+        console.log(r);
         let ruleL = [];
         for (let k = 1; k < r.length; k += 1) {
           let rule = r[k];
           let str = rule[0] + ' ' + rule[1] + ' ' + rule[2] + ' ; ';
           ruleL.push(str);
         }
-        const obj = { name: nameStr, rule: ruleL };
+        const obj = { name: r[0], rule: ruleL };
         children.push(obj);
       }
       return (
@@ -205,11 +254,6 @@ class Set extends Component {
   }
 
   render() {
-    const options = [
-      { label: '机器一', value: '1' },
-      { label: '机器二', value: '2' },
-      { label: '机器三', value: '3' },
-    ];
     const { rules } = this.state;
     return (
       <div style={{ background: '#ffffff', height: '100%' }}>
@@ -225,11 +269,16 @@ class Set extends Component {
               onOk={this.handleOk}
               onCancel={this.handleCancel}
             >
-              <CheckboxGroup
-                options={options}
-                onChange={this.changeMachine.bind(this)}
-                style={{ marginBottom: 10 }}
-              />
+              <Select
+                defaultValue="1"
+                style={{ width: 80, marginBottom: 10 }}
+                size={'small'}
+                onChange={this.chooseMachine.bind(this)}
+              >
+                <Option value="1">机器一</Option>
+                <Option value="2">机器二</Option>
+              </Select>
+
               <br />
 
               <Checkbox onChange={this.togglecpuIsChecked.bind(this)}>CPU使用率</Checkbox>
@@ -289,9 +338,7 @@ class Set extends Component {
               <br />
             </Modal>
           </TabPane>
-          <TabPane tab="管理操作" key="2">
-            管理操作
-          </TabPane>
+
           <TabPane tab="通知方式" key="3">
             通知方式
           </TabPane>

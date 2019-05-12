@@ -7,6 +7,7 @@ const RadioGroup = Radio.Group;
 const Option = Select.Option;
 const postRulesUrl = 'http://127.0.0.1:8081/postRules';
 const getRulesListUrl = 'http://127.0.0.1:8081/getRulesList';
+const deletRuleUrl = 'http://127.0.0.1:8081/deletRule';
 
 class Set extends Component {
   state = {
@@ -20,16 +21,21 @@ class Set extends Component {
     cpuRuleName: '>',
     memRule: '0',
     memRuleName: '>',
-    rules: [{ rulesListNames: ['机器一', ['cpu使用率', '>', 70]] }],
+    mockId: -100,
+    rules: [{ ruleId: -1, rulesListNames: ['机器一', ['cpu使用率', '>', 70]] }],
   };
 
   componentDidMount() {
+    this.getRulesList();
+  }
+  getRulesList() {
     let _this = this;
     fetch(getRulesListUrl, {
       method: 'GET',
     })
       .then(res => res.json())
       .then(res => {
+        console.log(res);
         let ch = [];
         let machineName = '';
         for (let i = 0; i < res.length; i++) {
@@ -74,11 +80,9 @@ class Set extends Component {
             rules = [];
           }
 
-          ch.push({ rulesListNames });
+          ch.push({ ruleId: res[i].rule_id, rulesListNames: rulesListNames });
         }
         _this.setState({ rules: ch });
-        console.log('ch');
-        console.log(ch);
       });
   }
 
@@ -151,6 +155,7 @@ class Set extends Component {
       memRuleName,
       memNum,
       rules,
+      mockId,
     } = this.state;
 
     const rulesList = [];
@@ -181,11 +186,27 @@ class Set extends Component {
       rulesList.push([1, Number(memRule), memNum]);
       rulesListNames.push(['内存使用率', memRuleName, memNum]);
     }
-    this.setState({ rules: rules.concat({ rulesListNames }) });
+    this.setState({ rules: rules.concat({ ruleId: mockId + 1, rulesListNames: rulesListNames }) });
+    this.setState({ mockId: mockId + 1 });
     fetch(postRulesUrl, {
       method: 'POST',
       body: JSON.stringify(rulesList),
     }).then(res => res.text());
+  }
+
+  deleteRule(item) {
+    let _this = this;
+    fetch(deletRuleUrl, {
+      method: 'POST',
+      body: item.id,
+    })
+      .then(res => res.text())
+      .then(res => {
+        console.log(res);
+        _this.getRulesList();
+        const { rules } = _this.state;
+        _this.renderRulesList(rules);
+      });
   }
 
   renderRulesList(rules) {
@@ -195,15 +216,14 @@ class Set extends Component {
     if (rules.length > 0) {
       for (let i = 0; i < rules.length; i += 1) {
         const r = rules[i].rulesListNames;
-        console.log('r');
-        console.log(r);
+        const rId = rules[i].ruleId;
         let ruleL = [];
         for (let k = 1; k < r.length; k += 1) {
           let rule = r[k];
           let str = rule[0] + ' ' + rule[1] + ' ' + rule[2] + ' ; ';
           ruleL.push(str);
         }
-        const obj = { name: r[0], rule: ruleL };
+        const obj = { id: rId, name: r[0], rule: ruleL };
         children.push(obj);
       }
       return (
@@ -223,13 +243,13 @@ class Set extends Component {
               操作
             </Col>
           </Row>
-          {children.map((item, index) => {
+          {children.map(item => {
             return (
               <Row
                 gutter={24}
                 className={styles.rowDec}
                 style={{ marginRight: 0, marginLeft: 0 }}
-                key={index}
+                key={item.id}
               >
                 <Col xl={8} lg={24} md={24} sm={24} xs={24}>
                   {item.name}
@@ -240,7 +260,7 @@ class Set extends Component {
                   })}
                 </Col>
                 <Col xl={8} lg={24} md={24} sm={24} xs={24}>
-                  <a>删除</a>
+                  <a onClick={this.deleteRule.bind(this, item)}>删除</a>
                 </Col>
               </Row>
             );

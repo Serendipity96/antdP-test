@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { Select } from 'antd';
+import { Select, Row, Col } from 'antd';
 import TimelineChart from '@/components/Charts/TimelineChart';
 
 const { Option } = Select;
+const getDetailUrl = 'http://127.0.0.1:8081/getHostParam';
 
 class Detail extends Component {
   state = {
@@ -84,7 +85,7 @@ class Detail extends Component {
       /* eslint-disable */
     };
 
-    fetch(`http://127.0.0.1:8081/getHostParam`, {
+    fetch(getDetailUrl, {
       method: 'POST',
       // headers: { 'Accept': 'application/json', 'Content-Type': 'application/json'},
       body: JSON.stringify(str),
@@ -162,14 +163,37 @@ class Detail extends Component {
           <Option value="3">机器三</Option>
         </Select>
 
-        <TimelineChart height={300} data={cpuChart} titleMap={{ y1: 'cpu使用率' }} />
-        <TimelineChart height={300} data={memChart} titleMap={{ y1: '内存使用率' }} />
-        <TimelineChart height={300} data={ioChart} titleMap={{ y1: 'io读', y2: 'io写' }} />
-        <TimelineChart height={300} data={netChart} titleMap={{ y1: '网络上传', y2: '网络下载' }} />
-        <TimelineChart height={300} data={connectionsChart} titleMap={{ y1: '数据库连接数' }} />
-        <TimelineChart height={300} data={tpsChart} titleMap={{ y1: 'TPS' }} />
+        <Row gutter={24}>
+          <Col xl={12} lg={12} md={12} sm={24} xs={24}>
+            <TimelineChart height={300} data={cpuChart} titleMap={{ y1: 'cpu使用率' }} />
+          </Col>
+          <Col xl={12} lg={12} md={12} sm={24} xs={24}>
+            <TimelineChart height={300} data={memChart} titleMap={{ y1: '内存使用率' }} />
+          </Col>
+        </Row>
+        <Row gutter={24}>
+          <Col xl={12} lg={12} md={12} sm={24} xs={24}>
+            <TimelineChart height={300} data={ioChart} titleMap={{ y1: 'io读', y2: 'io写' }} />
+          </Col>
+          <Col xl={12} lg={12} md={12} sm={24} xs={24}>
+            <TimelineChart
+              height={300}
+              data={netChart}
+              titleMap={{ y1: '网络上传', y2: '网络下载' }}
+            />
+          </Col>
+        </Row>
+        <Row gutter={24}>
+          <Col xl={12} lg={12} md={12} sm={24} xs={24}>
+            <TimelineChart height={300} data={connectionsChart} titleMap={{ y1: '数据库连接数' }} />
+          </Col>
+          <Col xl={12} lg={12} md={12} sm={24} xs={24}>
+            <TimelineChart height={300} data={tpsChart} titleMap={{ y1: 'TPS' }} />
+          </Col>
+        </Row>
       </div>
     );
   }
 }
+
 export default Detail;

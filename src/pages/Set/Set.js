@@ -260,7 +260,7 @@ class Set extends Component {
                   })}
                 </Col>
                 <Col xl={8} lg={24} md={24} sm={24} xs={24}>
-                  <a onClick={this.deleteRule.bind(this, item)}>删除</a>
+                  <a onClick={this.deleteRule.bind(this, item)}>详情</a>
                 </Col>
               </Row>
             );

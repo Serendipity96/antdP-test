@@ -53,14 +53,14 @@ export default [
         path: '/detail',
         name: 'detail',
         icon: 'profile',
-        component: './Detail',
+        component: './Detail/Detail',
       },
       // 设置
       {
         path: '/set',
         name: 'set',
         icon: 'table',
-        component: './Set',
+        component: './Set/Set',
       },
       {
         component: '404',

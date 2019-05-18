@@ -6,6 +6,9 @@ export default {
   'menu.dashboard': '监控大盘',
   'menu.dashboard.dashboard2': '总体数据', // 新建
   'menu.detail': '监控详情', // 新建
+  'menu.detail.statistics': '监控报表', // 新建
+  'menu.detail.chart': '监控图表', // 新建
+  'menu.detail.alarmRecord': '告警记录', // 新建
   'menu.set': '监控设置', // 新建
   'menu.dashboard.analysis': '总体分析', // 修改
   'menu.dashboard.monitor': '监控页',

@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { Select, Row, Col } from 'antd';
-import TimelineChart from '@/components/Charts/TimelineChart';
+import { TimelineChart, WaterWave } from '@/components/Charts';
 
 const { Option } = Select;
 const getDetailUrl = 'http://127.0.0.1:8081/getHostParam';
 
-class Detail extends Component {
+class Chart extends Component {
   state = {
     cpuChart: [],
     memChart: [],
@@ -191,9 +191,17 @@ class Detail extends Component {
             <TimelineChart height={300} data={tpsChart} titleMap={{ y1: 'TPS' }} />
           </Col>
         </Row>
+        <Row gutter={24}>
+          <Col xl={12} lg={12} md={12} sm={24} xs={24} style={{ background: '#fff' }}>
+            <WaterWave height={161} title="连接池使用" percent={28} />
+          </Col>
+          <Col xl={12} lg={12} md={12} sm={24} xs={24} style={{ background: '#fff' }}>
+            <WaterWave height={161} title="缓存表使用" percent={36} />
+          </Col>
+        </Row>
       </div>
     );
   }
 }
 
-export default Detail;
+export default Chart;

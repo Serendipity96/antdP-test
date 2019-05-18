@@ -28,7 +28,6 @@ class Dashboard2 extends Component {
       visitData2.push({
         x: new Date().getTime() + 1000 * 60 * 30 * i,
         y1: 0.8,
-        y2: 1.8,
       });
     }
 
@@ -42,21 +41,34 @@ class Dashboard2 extends Component {
     return (
       <AsyncLoadBizCharts>
         <div>
-          <Card bordered={false}>
-            <Row>
-              <Col sm={8} xs={24}>
-                <Info title="报警数" value="1" bordered />
-              </Col>
-              <Col sm={8} xs={24}>
-                <Info title="在线率" value="80%" bordered />
-              </Col>
-              <Col sm={8} xs={24}>
-                <Info title="集群负载" value="40%" />
-              </Col>
-            </Row>
-          </Card>
           <Row gutter={24}>
-            <Col xl={8} lg={12} md={12} sm={24} xs={24}>
+            <Col xl={6} lg={12} md={12} sm={24} xs={24}>
+              <ChartCard
+                title="集群在线率"
+                action={
+                  <Tooltip title="指标说明">
+                    <Icon type="info-circle-o" />
+                  </Tooltip>
+                }
+                total={'80%'}
+                footer={<Field label="平均在线率" value={'60%'} />}
+                contentHeight={46}
+              >
+                <span>
+                  周同比
+                  <Trend flag="up" style={{ marginLeft: 8, color: 'rgba(0,0,0,.85)' }}>
+                    12%
+                  </Trend>
+                </span>
+                <div>
+                  日环比
+                  <Trend flag="down" style={{ marginLeft: 8, color: 'rgba(0,0,0,.85)' }}>
+                    11%
+                  </Trend>
+                </div>
+              </ChartCard>
+            </Col>
+            <Col xl={6} lg={12} md={12} sm={24} xs={24}>
               <ChartCard
                 title="访问量"
                 action={
@@ -71,7 +83,7 @@ class Dashboard2 extends Component {
                 <MiniArea line height={46} data={visitData} />
               </ChartCard>
             </Col>
-            <Col xl={8} lg={12} md={12} sm={24} xs={24}>
+            <Col xl={6} lg={12} md={12} sm={24} xs={24}>
               <ChartCard
                 title="集群总负载"
                 action={
@@ -86,7 +98,7 @@ class Dashboard2 extends Component {
                 <MiniBar height={46} data={visitData} />
               </ChartCard>
             </Col>
-            <Col xl={8} lg={12} md={12} sm={24} xs={24}>
+            <Col xl={6} lg={12} md={12} sm={24} xs={24}>
               <ChartCard
                 title="集群总数据量"
                 action={
@@ -95,22 +107,7 @@ class Dashboard2 extends Component {
                   </Tooltip>
                 }
                 total="100G/200G"
-                footer={
-                  <div>
-                    <span>
-                      周同比
-                      <Trend flag="up" style={{ marginLeft: 8, color: 'rgba(0,0,0,.85)' }}>
-                        12%
-                      </Trend>
-                    </span>
-                    <span style={{ marginLeft: 16 }}>
-                      日环比
-                      <Trend flag="down" style={{ marginLeft: 8, color: 'rgba(0,0,0,.85)' }}>
-                        11%
-                      </Trend>
-                    </span>
-                  </div>
-                }
+                footer={<Field label="总数据量使用率" value={'50%'} />}
                 contentHeight={46}
               >
                 <MiniProgress percent={50} strokeWidth={8} target={50} />
@@ -136,13 +133,13 @@ class Dashboard2 extends Component {
                     <h2>20</h2>
                     <p>告警总数</p>
                   </Col>
-                  <Col className={styles.alarm} span={8}>
-                    <h2>20</h2>
-                    <p>告警总数</p>
+                  <Col className={styles.alarm} style={{ backgroundColor: '#FAAD14' }} span={8}>
+                    <h2>5</h2>
+                    <p>未解决告警</p>
                   </Col>
-                  <Col className={styles.alarm} span={8}>
-                    <h2>20</h2>
-                    <p>告警总数</p>
+                  <Col className={styles.alarm} style={{ backgroundColor: '#52c41a' }} span={8}>
+                    <h2>15</h2>
+                    <p>已解决告警</p>
                   </Col>
                 </Row>
                 <Row
@@ -151,17 +148,17 @@ class Dashboard2 extends Component {
                   className={styles.alarmGroup}
                   style={{ marginLeft: 0, marginRight: 0 }}
                 >
-                  <Col className={styles.alarm} span={8}>
-                    <h2>20</h2>
-                    <p>告警总数</p>
+                  <Col className={styles.alarm} style={{ backgroundColor: '#108ee9' }} span={8}>
+                    <h2>12</h2>
+                    <p>服务器告警</p>
                   </Col>
-                  <Col className={styles.alarm} span={8}>
-                    <h2>20</h2>
-                    <p>告警总数</p>
+                  <Col className={styles.alarm} style={{ backgroundColor: '#13c2c2' }} span={8}>
+                    <h2>6</h2>
+                    <p>数据库告警</p>
                   </Col>
-                  <Col className={styles.alarm} span={8}>
-                    <h2>20</h2>
-                    <p>告警总数</p>
+                  <Col className={styles.alarm} style={{ backgroundColor: '#2db7f5' }} span={8}>
+                    <h2>2</h2>
+                    <p>操作告警</p>
                   </Col>
                 </Row>
               </Col>
@@ -172,11 +169,7 @@ class Dashboard2 extends Component {
                   </Col>
                 </Row>
                 <Row>
-                  <TimelineChart
-                    height={250}
-                    data={visitData2}
-                    titleMap={{ y1: 'TPS', y2: 'yyy' }}
-                  />
+                  <TimelineChart height={250} data={visitData2} titleMap={{ y1: '平均负载' }} />
                 </Row>
               </Col>
             </Row>

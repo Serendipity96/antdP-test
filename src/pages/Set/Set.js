@@ -12,6 +12,7 @@ const deletRuleUrl = 'http://127.0.0.1:8081/deletRule';
 class Set extends Component {
   state = {
     visible: false,
+    noticeVisible: false,
     cpuIsChecked: false,
     memIsChecked: false,
     machine: 1,
@@ -23,11 +24,13 @@ class Set extends Component {
     memRuleName: '>',
     mockId: -100,
     rules: [{ ruleId: -1, rulesListNames: ['机器一', ['cpu使用率', '>', 70]] }],
+    notices: [{ id: 1, time: '任何时间', level: '紧急', way: '邮件通知' }],
   };
 
   componentDidMount() {
     this.getRulesList();
   }
+
   getRulesList() {
     let _this = this;
     fetch(getRulesListUrl, {
@@ -102,6 +105,22 @@ class Set extends Component {
   handleCancel = () => {
     this.setState({
       visible: false,
+    });
+  };
+
+  showNoticeModal = () => {
+    this.setState({
+      noticeVisible: true,
+    });
+  };
+  addNotices = () => {
+    this.setState({
+      noticeVisible: false,
+    });
+  };
+  cancelAddNotice = () => {
+    this.setState({
+      noticeVisible: false,
     });
   };
 
@@ -273,10 +292,57 @@ class Set extends Component {
     }
   }
 
+  renderNotice(notices) {
+    if (notices.length === 0) {
+      return <div>暂无通知策略</div>;
+    }
+    if (notices.length > 0) {
+      return (
+        <div>
+          <Row
+            gutter={24}
+            className={styles.rowDec}
+            style={{ background: '#eeeeee', marginRight: 0, marginLeft: 0 }}
+          >
+            <Col xl={8} lg={24} md={24} sm={24} xs={24}>
+              时间
+            </Col>
+            <Col xl={8} lg={24} md={24} sm={24} xs={24}>
+              告警级别
+            </Col>
+            <Col xl={8} lg={24} md={24} sm={24} xs={24}>
+              通知方式
+            </Col>
+          </Row>
+          {notices.map(item => {
+            return (
+              <Row
+                gutter={24}
+                className={styles.rowDec}
+                style={{ marginRight: 0, marginLeft: 0 }}
+                key={item.id}
+              >
+                <Col xl={8} lg={24} md={24} sm={24} xs={24}>
+                  {item.time}
+                </Col>
+                <Col xl={8} lg={24} md={24} sm={24} xs={24}>
+                  {item.level}
+                </Col>
+                <Col xl={8} lg={24} md={24} sm={24} xs={24}>
+                  {item.way}
+                </Col>
+              </Row>
+            );
+          })}
+        </div>
+      );
+    }
+  }
+
   render() {
-    const { rules } = this.state;
+    const { rules, notices } = this.state;
     return (
-      <div style={{ background: '#ffffff', height: '100%' }}>
+      <div className={styles.container} style={{ background: '#ffffff', height: '100%' }}>
         <Tabs defaultActiveKey="1" onChange={this.med} style={{ padding: '24px' }}>
           <TabPane tab="报警规则" key="1">
             <Button type="primary" onClick={this.showModal} style={{ marginBottom: 10 }}>
@@ -359,8 +425,32 @@ class Set extends Component {
             </Modal>
           </TabPane>
 
-          <TabPane tab="通知方式" key="3">
-            通知方式
+          <TabPane tab="通知策略" key="2">
+            <Button type="primary" onClick={this.showNoticeModal} style={{ marginBottom: 10 }}>
+              添加
+            </Button>
+            {this.renderNotice(notices)}
+
+            <Modal
+              title="通知策略"
+              visible={this.state.noticeVisible}
+              onOk={this.addNotices}
+              onCancel={this.cancelAddNotice}
+            >
+              <Select defaultValue="anytime" style={{ width: 120, marginRight: 10 }}>
+                <Option value="anytime">任何时间</Option>
+                <Option value="workTime">工作时间</Option>
+              </Select>
+              <Select defaultValue="anyAlarm" style={{ width: 120, marginRight: 10 }}>
+                <Option value="anyAlarm">任何告警</Option>
+                <Option value="urgent">紧急级别</Option>
+                <Option value="warning">警告级别</Option>
+              </Select>
+              <Select defaultValue="email" style={{ width: 120 }}>
+                <Option value="email">邮件通知</Option>
+                <Option value="message">短信通知</Option>
+              </Select>
+            </Modal>
           </TabPane>
         </Tabs>
       </div>

@@ -22,25 +22,6 @@ export default [
     routes: [
       // dashboard
       { path: '/', redirect: '/dashboard/dashboard2' },
-      // {
-      //   path: '/dashboard',
-      //   name: 'dashboard',
-      //   icon: 'dashboard',
-      //   routes: [
-      //     {
-      //       path: '/dashboard/dashboard2',
-      //       name: 'dashboard2',
-      //       component: './Dashboard/Dashboard2',
-      //     },
-      //     {
-      //       path: '/dashboard/analysis',
-      //       name: 'analysis',
-      //       component: './Dashboard/Analysis',
-      //     },
-      //   ],
-      // },
-      // list
-
       // dashboard2 大盘
       {
         path: '/dashboard/dashboard2',
@@ -53,8 +34,25 @@ export default [
         path: '/detail',
         name: 'detail',
         icon: 'profile',
-        component: './Detail/Detail',
+        routes: [
+          {
+            path: '/detail/statistics',
+            name: 'statistics',
+            component: './Detail/Statistics',
+          },
+          {
+            path: '/detail/chart',
+            name: 'chart',
+            component: './Detail/Chart',
+          },
+          {
+            path: '/detail/alarmRecord',
+            name: 'alarmRecord',
+            component: './Detail/AlarmRecord',
+          },
+        ],
       },
+
       // 设置
       {
         path: '/set',

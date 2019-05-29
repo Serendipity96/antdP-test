@@ -8,6 +8,7 @@ const Option = Select.Option;
 const postRulesUrl = 'http://127.0.0.1:8081/postRules';
 const getRulesListUrl = 'http://127.0.0.1:8081/getRulesList';
 const deletRuleUrl = 'http://127.0.0.1:8081/deletRule';
+const getMachineListUrl = 'http://127.0.0.1:8081/getMachineList';
 
 class Set extends Component {
   state = {
@@ -24,11 +25,16 @@ class Set extends Component {
     memRuleName: '>',
     mockId: -100,
     rules: [{ ruleId: -1, rulesListNames: ['机器一', ['cpu使用率', '>', 70]] }],
-    notices: [{ id: 1, time: '任何时间', level: '紧急', way: '邮件通知' }],
+    notices: [
+      { id: 1, time: '任何时间', level: '紧急', way: '邮件通知' },
+      { id: 2, time: '任何时间', level: '任何告警', way: '邮件通知' },
+    ],
+    machineList: [{ id: '0', ip_address: '0.0.0.0' }],
   };
 
   componentDidMount() {
     this.getRulesList();
+    this.getMachineList();
   }
 
   getRulesList() {
@@ -38,7 +44,7 @@ class Set extends Component {
     })
       .then(res => res.json())
       .then(res => {
-        console.log(res);
+        // console.log(res);
         let ch = [];
         let machineName = '';
         for (let i = 0; i < res.length; i++) {
@@ -221,16 +227,29 @@ class Set extends Component {
     })
       .then(res => res.text())
       .then(res => {
-        console.log(res);
+        // console.log(res);
         _this.getRulesList();
         const { rules } = _this.state;
         _this.renderRulesList(rules);
       });
   }
 
+  getMachineList() {
+    let _this = this;
+    fetch(getMachineListUrl, {
+      method: 'GET',
+    })
+      .then(res => res.text())
+      .then(res => {
+        let a = JSON.parse(res);
+        console.log(a);
+        _this.setState({ machineList: a });
+      });
+  }
+
   renderRulesList(rules) {
-    console.log('rules');
-    console.log(rules);
+    // console.log('rules');
+    // console.log(rules);
     let children = [];
     if (rules.length > 0) {
       for (let i = 0; i < rules.length; i += 1) {
@@ -279,7 +298,7 @@ class Set extends Component {
                   })}
                 </Col>
                 <Col xl={8} lg={24} md={24} sm={24} xs={24}>
-                  <a onClick={this.deleteRule.bind(this, item)}>详情</a>
+                  <a onClick={this.deleteRule.bind(this, item)}>删除</a>
                 </Col>
               </Row>
             );
@@ -340,7 +359,7 @@ class Set extends Component {
   }
 
   render() {
-    const { rules, notices } = this.state;
+    const { rules, notices, machineList } = this.state;
     return (
       <div className={styles.container} style={{ background: '#ffffff', height: '100%' }}>
         <Tabs defaultActiveKey="1" onChange={this.med} style={{ padding: '24px' }}>
@@ -356,13 +375,18 @@ class Set extends Component {
               onCancel={this.handleCancel}
             >
               <Select
-                defaultValue="1"
-                style={{ width: 80, marginBottom: 10 }}
+                placeholder="请选择机器"
+                style={{ width: 120, marginBottom: 10 }}
                 size={'small'}
                 onChange={this.chooseMachine.bind(this)}
               >
-                <Option value="1">机器一</Option>
-                <Option value="2">机器二</Option>
+                {machineList.map(item => {
+                  return (
+                    <Option value={item.id} key={item.id}>
+                      {item.ip_address}
+                    </Option>
+                  );
+                })}
               </Select>
 
               <br />

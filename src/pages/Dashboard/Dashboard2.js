@@ -27,7 +27,7 @@ class Dashboard2 extends Component {
       });
       visitData2.push({
         x: new Date().getTime() + 1000 * 60 * 30 * i,
-        y1: 0.8,
+        y1: Math.floor(Math.random() * 10) + 2,
       });
     }
 

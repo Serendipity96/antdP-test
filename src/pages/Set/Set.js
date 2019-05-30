@@ -7,29 +7,25 @@ const RadioGroup = Radio.Group;
 const Option = Select.Option;
 const postRulesUrl = 'http://127.0.0.1:8081/postRules';
 const getRulesListUrl = 'http://127.0.0.1:8081/getRulesList';
-const deletRuleUrl = 'http://127.0.0.1:8081/deletRule';
+const deleteRuleUrl = 'http://127.0.0.1:8081/deleteRule';
 const getMachineListUrl = 'http://127.0.0.1:8081/getMachineList';
 
 class Set extends Component {
   state = {
-    visible: false,
+    modalVisible: false,
     noticeVisible: false,
     cpuIsChecked: false,
     memIsChecked: false,
-    machine: 1,
     cpuNum: 70,
     memNum: 60,
-    cpuRule: '0',
-    cpuRuleName: '>',
-    memRule: '0',
-    memRuleName: '>',
-    mockId: -100,
-    rules: [{ ruleId: -1, rulesListNames: ['机器一', ['cpu使用率', '>', 70]] }],
+    cpuRule: '>',
+    memRule: '>',
     notices: [
       { id: 1, time: '任何时间', level: '紧急', way: '邮件通知' },
       { id: 2, time: '任何时间', level: '任何告警', way: '邮件通知' },
     ],
     machineList: [{ id: '0', ip_address: '0.0.0.0' }],
+    rules: [],
   };
 
   componentDidMount() {
@@ -44,73 +40,28 @@ class Set extends Component {
     })
       .then(res => res.json())
       .then(res => {
-        // console.log(res);
-        let ch = [];
-        let machineName = '';
-        for (let i = 0; i < res.length; i++) {
-          const machineId = res[i].machine_id;
-          if (machineId === 1) {
-            machineName = '机器一';
-          }
-          if (machineId === 2) {
-            machineName = '机器二';
-          }
-          if (machineId === 3) {
-            machineName = '机器三';
-          }
-          let r = JSON.parse(res[i].rule);
-          let rules = [];
-          let rulesListNames = [];
-          rulesListNames.push(machineName);
-          for (let j = 0; j < r.length; j++) {
-            let rr = r[j];
-            if (rr[0] === 0) {
-              rules.push('cpu使用率');
-              if (rr[1] === 0) {
-                rules.push('>');
-              } else if (rr[1] === 1) {
-                rules.push('=');
-              } else if (rr[1] === 2) {
-                rules.push('<');
-              }
-            }
-            if (rr[0] === 1) {
-              rules.push('内存使用率');
-              if (rr[1] === 0) {
-                rules.push('>');
-              } else if (rr[1] === 1) {
-                rules.push('=');
-              } else if (rr[1] === 2) {
-                rules.push('<');
-              }
-            }
-            rules.push(rr[2]);
-            rulesListNames.push(rules);
-            rules = [];
-          }
-
-          ch.push({ ruleId: res[i].rule_id, rulesListNames: rulesListNames });
-        }
-        _this.setState({ rules: ch });
+        console.log('getRulesList');
+        console.log(res);
+        _this.setState({ rules: res });
       });
   }
 
   showModal = () => {
     this.setState({
-      visible: true,
+      modalVisible: true,
     });
   };
 
   handleOk = () => {
     this.setState({
-      visible: false,
+      modalVisible: false,
     });
     this.postRules();
   };
 
   handleCancel = () => {
     this.setState({
-      visible: false,
+      modalVisible: false,
     });
   };
 
@@ -141,11 +92,11 @@ class Set extends Component {
   }
 
   changeCpuRule(e) {
-    this.setState({ cpuRule: e.target.value, cpuRuleName: e.target.data_rule });
+    this.setState({ cpuRule: e.target.value });
   }
 
   changeMemRule(e) {
-    this.setState({ memRule: e.target.value, memRuleName: e.target.data_rule });
+    this.setState({ memRule: e.target.value });
   }
 
   changeCpuNum(value) {
@@ -169,68 +120,37 @@ class Set extends Component {
   }
 
   postRules() {
-    const {
-      machine,
-      cpuIsChecked,
-      memIsChecked,
-      cpuRule,
-      cpuRuleName,
-      cpuNum,
-      memRule,
-      memRuleName,
-      memNum,
-      rules,
-      mockId,
-    } = this.state;
-
-    const rulesList = [];
-    const rulesListNames = [];
-    let machineName = '';
-
-    if (machine === 1) {
-      machineName = '机器一';
-    }
-    if (machine === 2) {
-      machineName = '机器二';
-    }
-    if (machine === 3) {
-      machineName = '机器三';
-    }
-    rulesList.push(machine);
-    rulesListNames.push(machineName);
-    if (cpuIsChecked === false && memIsChecked === false) {
-      console.log('请为机器选择一条约束');
-      return;
-    }
-
+    const _this = this;
+    const { machine, cpuIsChecked, memIsChecked, cpuRule, cpuNum, memRule, memNum } = this.state;
+    let rules = [];
     if (cpuIsChecked) {
-      rulesList.push([0, Number(cpuRule), cpuNum]);
-      rulesListNames.push(['cpu使用率', cpuRuleName, cpuNum]);
+      rules.push({ typ: 'cpu', op: cpuRule, value: cpuNum });
     }
     if (memIsChecked) {
-      rulesList.push([1, Number(memRule), memNum]);
-      rulesListNames.push(['内存使用率', memRuleName, memNum]);
+      rules.push({ typ: 'mem', op: memRule, value: memNum });
     }
-    this.setState({ rules: rules.concat({ ruleId: mockId + 1, rulesListNames: rulesListNames }) });
-    this.setState({ mockId: mockId + 1 });
     fetch(postRulesUrl, {
       method: 'POST',
-      body: JSON.stringify(rulesList),
-    }).then(res => res.text());
+      body: JSON.stringify({
+        id: machine,
+        rules: rules,
+      }),
+    }).then(() => {
+      _this.getRulesList();
+    });
   }
 
   deleteRule(item) {
     let _this = this;
-    fetch(deletRuleUrl, {
+    fetch(deleteRuleUrl, {
       method: 'POST',
-      body: item.id,
+      body: item.rule_id,
     })
       .then(res => res.text())
       .then(res => {
-        // console.log(res);
+        console.log(res);
+        console.log('deleteRule getRulesList');
         _this.getRulesList();
-        const { rules } = _this.state;
-        _this.renderRulesList(rules);
       });
   }
 
@@ -248,22 +168,7 @@ class Set extends Component {
   }
 
   renderRulesList(rules) {
-    // console.log('rules');
-    // console.log(rules);
-    let children = [];
     if (rules.length > 0) {
-      for (let i = 0; i < rules.length; i += 1) {
-        const r = rules[i].rulesListNames;
-        const rId = rules[i].ruleId;
-        let ruleL = [];
-        for (let k = 1; k < r.length; k += 1) {
-          let rule = r[k];
-          let str = rule[0] + ' ' + rule[1] + ' ' + rule[2] + ' ; ';
-          ruleL.push(str);
-        }
-        const obj = { id: rId, name: r[0], rule: ruleL };
-        children.push(obj);
-      }
       return (
         <div>
           <Row
@@ -281,21 +186,19 @@ class Set extends Component {
               操作
             </Col>
           </Row>
-          {children.map(item => {
+          {rules.map(item => {
             return (
               <Row
                 gutter={24}
                 className={styles.rowDec}
                 style={{ marginRight: 0, marginLeft: 0 }}
-                key={item.id}
+                key={item.rule_id}
               >
                 <Col xl={8} lg={24} md={24} sm={24} xs={24}>
-                  {item.name}
+                  {item.machine_id}
                 </Col>
                 <Col xl={8} lg={24} md={24} sm={24} xs={24}>
-                  {item.rule.map(itm => {
-                    return itm;
-                  })}
+                  {item.rule}
                 </Col>
                 <Col xl={8} lg={24} md={24} sm={24} xs={24}>
                   <a onClick={this.deleteRule.bind(this, item)}>删除</a>
@@ -370,7 +273,7 @@ class Set extends Component {
             {this.renderRulesList(rules)}
             <Modal
               title="报警规则"
-              visible={this.state.visible}
+              visible={this.state.modalVisible}
               onOk={this.handleOk}
               onCancel={this.handleCancel}
             >
@@ -394,19 +297,13 @@ class Set extends Component {
               <Checkbox onChange={this.togglecpuIsChecked.bind(this)}>CPU使用率</Checkbox>
               <RadioGroup
                 onChange={this.changeCpuRule.bind(this)}
-                defaultValue="0"
+                defaultValue="&gt;"
                 disabled={!this.state.cpuIsChecked}
                 style={{ margin: '0 20px' }}
               >
-                <Radio value="0" data_rule=">">
-                  大于
-                </Radio>
-                <Radio value="1" data_rule="=">
-                  等于
-                </Radio>
-                <Radio value="2" data_rule="<">
-                  小于
-                </Radio>
+                <Radio value=">">&gt;</Radio>
+                <Radio value="=">=</Radio>
+                <Radio value="<">&lt;</Radio>
               </RadioGroup>
               <InputNumber
                 min={1}
@@ -423,19 +320,13 @@ class Set extends Component {
               </Checkbox>
               <RadioGroup
                 onChange={this.changeMemRule.bind(this)}
-                defaultValue="0"
+                defaultValue="&gt;"
                 disabled={!this.state.memIsChecked}
                 style={{ margin: '5px 20px' }}
               >
-                <Radio value="0" data_rule=">">
-                  大于
-                </Radio>
-                <Radio value="1" data_rule="=">
-                  等于
-                </Radio>
-                <Radio value="2" data_rule="<">
-                  小于
-                </Radio>
+                <Radio value=">">&gt;</Radio>
+                <Radio value="=">=</Radio>
+                <Radio value="<">&lt;</Radio>
               </RadioGroup>
               <InputNumber
                 min={1}

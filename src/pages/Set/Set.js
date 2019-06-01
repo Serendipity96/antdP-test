@@ -20,6 +20,8 @@ class Set extends Component {
     memNum: 60,
     cpuRule: '>',
     memRule: '>',
+    cpuLevel: 'normal',
+    memLevel: 'normal',
     notices: [
       { id: 1, time: '任何时间', level: '紧急', way: '邮件通知' },
       { id: 2, time: '任何时间', level: '任何告警', way: '邮件通知' },
@@ -119,20 +121,44 @@ class Set extends Component {
     });
   }
 
+  cpuLevel(value) {
+    console.log(value);
+    this.setState({ cpuLevel: value });
+  }
+
+  memLevel(value) {
+    console.log(value);
+    this.setState({ memLevel: value });
+  }
+
   postRules() {
     const _this = this;
-    const { machine, cpuIsChecked, memIsChecked, cpuRule, cpuNum, memRule, memNum } = this.state;
+    const {
+      machine,
+      cpuIsChecked,
+      memIsChecked,
+      cpuRule,
+      cpuNum,
+      memRule,
+      memNum,
+      cpuLevel,
+      memLevel,
+    } = this.state;
     let rules = [];
+    let levels = [];
     if (cpuIsChecked) {
+      levels.push(cpuLevel);
       rules.push({ typ: 'cpu', op: cpuRule, value: cpuNum });
     }
     if (memIsChecked) {
+      levels.push(memLevel);
       rules.push({ typ: 'mem', op: memRule, value: memNum });
     }
     fetch(postRulesUrl, {
       method: 'POST',
       body: JSON.stringify({
         id: machine,
+        levels: levels,
         rules: rules,
       }),
     }).then(() => {
@@ -195,7 +221,7 @@ class Set extends Component {
                 key={item.rule_id}
               >
                 <Col xl={8} lg={24} md={24} sm={24} xs={24}>
-                  {item.machine_id}
+                  {item.ip}
                 </Col>
                 <Col xl={8} lg={24} md={24} sm={24} xs={24}>
                   {item.rule}
@@ -313,6 +339,16 @@ class Set extends Component {
                 size={'small'}
                 disabled={!this.state.cpuIsChecked}
               />
+              <Select
+                placeholder="告警级别"
+                style={{ width: 80, marginBottom: 10, marginLeft: 10 }}
+                size={'small'}
+                onChange={this.cpuLevel.bind(this)}
+                disabled={!this.state.cpuIsChecked}
+              >
+                <Option value="urgent">紧急</Option>
+                <Option value="normal">普通</Option>
+              </Select>
               <br />
 
               <Checkbox onChange={this.togglememIsChecked.bind(this)} style={{ marginRight: 1 }}>
@@ -336,6 +372,16 @@ class Set extends Component {
                 size={'small'}
                 disabled={!this.state.memIsChecked}
               />
+              <Select
+                placeholder="告警级别"
+                style={{ width: 80, marginBottom: 10, marginLeft: 10 }}
+                size={'small'}
+                onChange={this.memLevel.bind(this)}
+                disabled={!this.state.cpuIsChecked}
+              >
+                <Option value="urgent">紧急</Option>
+                <Option value="normal">普通</Option>
+              </Select>
               <br />
             </Modal>
           </TabPane>

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Select, Row, Col, DatePicker, Button } from 'antd';
 import { TimelineChart, WaterWave } from '@/components/Charts';
+import { AsyncLoadBizCharts } from '@/components/Charts/AsyncLoadBizCharts';
 import moment from 'moment';
 
 const { Option } = Select;
@@ -78,6 +79,11 @@ class Chart extends Component {
         x: new Date().getTime() + 1000 * 60 * 30 * i,
         y1: 0.8,
       });
+      // 如果是报表详情点进来的，有id
+      let id = this.props.location.query['id'];
+      if (id) {
+        this.setState({ id: Number(id) });
+      }
     }
     this.setState({
       cpuChart: cpu,
@@ -91,13 +97,13 @@ class Chart extends Component {
       tableLocksChart: tableLocks,
       threadCacheHitChart: threadCacheHit,
     });
-    this.showResult();
   }
 
   componentDidMount() {
     // this.timer = setInterval(() => {
     //   this.getData();
     // }, 1000);
+
     this.getMachineList();
     this.showResult();
   }
@@ -134,7 +140,6 @@ class Chart extends Component {
 
     fetch(getDetailUrl, {
       method: 'POST',
-      // headers: { 'Accept': 'application/json', 'Content-Type': 'application/json'},
       body: JSON.stringify(str),
     })
       .then(res => res.text())
@@ -144,7 +149,6 @@ class Chart extends Component {
         console.log('fetch data');
         console.log(d1);
         const d2 = d1[id];
-
         const cpu = [];
         const mem = [];
         const io = [];
@@ -229,6 +233,7 @@ class Chart extends Component {
 
   render() {
     const {
+      id,
       machineList,
       cpuChart,
       memChart,
@@ -243,85 +248,93 @@ class Chart extends Component {
     } = this.state;
 
     return (
-      <div>
-        <Select
-          placeholder="请选择机器"
-          style={{ width: '30%', marginBottom: 15, marginRight: 10 }}
-          onChange={this.chooseMachine.bind(this)}
-        >
-          {machineList.map(item => {
-            return (
-              <Option value={item.id} key={item.id}>
-                {item.ip_address}
-              </Option>
-            );
-          })}
-        </Select>
-        <DatePicker
-          onChange={this.changeDate.bind(this)}
-          disabledDate={this.disabledEndDate.bind(this)}
-        />
-        <Button type="primary" onClick={this.showResult.bind(this)} style={{ marginLeft: 10 }}>
-          查询
-        </Button>
+      <AsyncLoadBizCharts>
+        <div>
+          <Select
+            defaultValue={id}
+            placeholder="请选择机器"
+            style={{ width: '30%', marginBottom: 15, marginRight: 10 }}
+            onChange={this.chooseMachine.bind(this)}
+          >
+            {machineList.map(item => {
+              return (
+                <Option value={item.id} key={item.id}>
+                  {item.ip_address}
+                </Option>
+              );
+            })}
+          </Select>
+          <DatePicker
+            defaultValue={moment()}
+            onChange={this.changeDate.bind(this)}
+            disabledDate={this.disabledEndDate.bind(this)}
+          />
+          <Button type="primary" onClick={this.showResult.bind(this)} style={{ marginLeft: 10 }}>
+            查询
+          </Button>
 
-        <Row gutter={24}>
-          <Col xl={12} lg={12} md={12} sm={24} xs={24}>
-            <TimelineChart height={300} data={cpuChart} titleMap={{ y1: 'cpu使用率' }} />
-          </Col>
-          <Col xl={12} lg={12} md={12} sm={24} xs={24}>
-            <TimelineChart height={300} data={memChart} titleMap={{ y1: '内存使用率' }} />
-          </Col>
-        </Row>
-        <Row gutter={24}>
-          <Col xl={12} lg={12} md={12} sm={24} xs={24}>
-            <TimelineChart height={300} data={ioChart} titleMap={{ y1: 'io读', y2: 'io写' }} />
-          </Col>
-          <Col xl={12} lg={12} md={12} sm={24} xs={24}>
-            <TimelineChart
-              height={300}
-              data={netChart}
-              titleMap={{ y1: '网络上传', y2: '网络下载' }}
-            />
-          </Col>
-        </Row>
-        <Row gutter={24}>
-          <Col xl={12} lg={12} md={12} sm={24} xs={24}>
-            <TimelineChart height={300} data={connectionsChart} titleMap={{ y1: '数据库连接数' }} />
-          </Col>
-          <Col xl={12} lg={12} md={12} sm={24} xs={24}>
-            <TimelineChart height={300} data={tpsChart} titleMap={{ y1: 'TPS' }} />
-          </Col>
-        </Row>
-        <Row gutter={24}>
-          <Col xl={12} lg={12} md={12} sm={24} xs={24}>
-            <TimelineChart
-              height={300}
-              data={keyBufferReadChart}
-              titleMap={{ y1: ' Key Buffer读穿透率' }}
-            />
-          </Col>
-          <Col xl={12} lg={12} md={12} sm={24} xs={24}>
-            <TimelineChart
-              height={300}
-              data={keyBufferWriteChart}
-              titleMap={{ y1: ' Key Buffer写穿透率' }}
-            />
-          </Col>
-        </Row>
-        <Row gutter={24}>
-          <Col xl={12} lg={12} md={12} sm={24} xs={24}>
-            <TimelineChart height={300} data={tableLocksChart} titleMap={{ y1: '锁阻塞率' }} />
-          </Col>
-          <Col xl={12} lg={12} md={12} sm={24} xs={24}>
-            <TimelineChart
-              height={300}
-              data={threadCacheHitChart}
-              titleMap={{ y1: ' 线程缓存命中率' }}
-            />
-          </Col>
-        </Row>
-      </div>
+          <Row gutter={24}>
+            <Col xl={12} lg={12} md={12} sm={24} xs={24}>
+              <TimelineChart height={300} data={cpuChart} titleMap={{ y1: 'cpu使用率' }} />
+            </Col>
+            <Col xl={12} lg={12} md={12} sm={24} xs={24}>
+              <TimelineChart height={300} data={memChart} titleMap={{ y1: '内存使用率' }} />
+            </Col>
+          </Row>
+          <Row gutter={24}>
+            <Col xl={12} lg={12} md={12} sm={24} xs={24}>
+              <TimelineChart height={300} data={ioChart} titleMap={{ y1: 'io读', y2: 'io写' }} />
+            </Col>
+            <Col xl={12} lg={12} md={12} sm={24} xs={24}>
+              <TimelineChart
+                height={300}
+                data={netChart}
+                titleMap={{ y1: '网络上传', y2: '网络下载' }}
+              />
+            </Col>
+          </Row>
+          <Row gutter={24}>
+            <Col xl={12} lg={12} md={12} sm={24} xs={24}>
+              <TimelineChart
+                height={300}
+                data={connectionsChart}
+                titleMap={{ y1: '数据库连接数' }}
+              />
+            </Col>
+            <Col xl={12} lg={12} md={12} sm={24} xs={24}>
+              <TimelineChart height={300} data={tpsChart} titleMap={{ y1: 'TPS' }} />
+            </Col>
+          </Row>
+          <Row gutter={24}>
+            <Col xl={12} lg={12} md={12} sm={24} xs={24}>
+              <TimelineChart
+                height={300}
+                data={keyBufferReadChart}
+                titleMap={{ y1: ' Key Buffer读穿透率' }}
+              />
+            </Col>
+            <Col xl={12} lg={12} md={12} sm={24} xs={24}>
+              <TimelineChart
+                height={300}
+                data={keyBufferWriteChart}
+                titleMap={{ y1: ' Key Buffer写穿透率' }}
+              />
+            </Col>
+          </Row>
+          <Row gutter={24}>
+            <Col xl={12} lg={12} md={12} sm={24} xs={24}>
+              <TimelineChart height={300} data={tableLocksChart} titleMap={{ y1: '锁阻塞率' }} />
+            </Col>
+            <Col xl={12} lg={12} md={12} sm={24} xs={24}>
+              <TimelineChart
+                height={300}
+                data={threadCacheHitChart}
+                titleMap={{ y1: ' 线程缓存命中率' }}
+              />
+            </Col>
+          </Row>
+        </div>
+      </AsyncLoadBizCharts>
     );
   }
 }

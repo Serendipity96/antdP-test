@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
-import { Col, Row, Badge, Switch } from 'antd';
+import { Col, Row, Badge, Checkbox } from 'antd';
 import styles from './AlarmRecord.less';
 
 const alarmRecordListUrl = 'http://127.0.0.1:8081/getAlarmRecordList';
+const changeSolvedUrl = 'http://127.0.0.1:8081/changeSolved';
 
 class AlarmRecord extends Component {
   state = {
     list: [],
+    map: null,
   };
 
   componentDidMount() {
@@ -21,12 +23,29 @@ class AlarmRecord extends Component {
       .then(res => res.json())
       .then(res => {
         console.log(res);
-        _this.setState({ list: res });
+        let map = new Map();
+        for (let i = 0; i < res.length; i++) {
+          map.set(res[i].id, res[i].is_solved);
+        }
+        _this.setState({ list: res, map: map });
       });
   }
 
+  changeSolved(e) {
+    console.log(e);
+    let { map } = this.state;
+    let id = e.target['data-id'];
+    let isSolved = e.target.checked;
+    map.set(id, isSolved);
+    this.setState({ map: map });
+    fetch(changeSolvedUrl, {
+      method: 'POST',
+      body: JSON.stringify({ id, isSolved }),
+    });
+  }
+
   render() {
-    const { list } = this.state;
+    const { list, map } = this.state;
     return (
       <div>
         <Row
@@ -77,37 +96,17 @@ class AlarmRecord extends Component {
                 {item.timestamp}
               </Col>
               <Col xl={4} lg={24} md={24} sm={24} xs={24}>
-                {item.is_solved}
-                <Switch checkedChildren="否" unCheckedChildren="是" />
+                <Checkbox
+                  checked={map.get(item.id)}
+                  onChange={this.changeSolved.bind(this)}
+                  data-id={item.id}
+                >
+                  {`${map.get(item.id) ? '已解决' : '未解决'}`}
+                </Checkbox>
               </Col>
             </Row>
           );
         })}
-
-        <Row
-          gutter={24}
-          className={styles.rowDec}
-          style={{ background: '#ffffff', marginRight: 0, marginLeft: 0 }}
-        >
-          <Col xl={4} lg={24} md={24} sm={24} xs={24}>
-            10.64.8.119
-          </Col>
-          <Col xl={4} lg={24} md={24} sm={24} xs={24}>
-            <Badge count={'警告'} style={{ backgroundColor: '#FAAD14' }} />
-          </Col>
-          <Col xl={4} lg={24} md={24} sm={24} xs={24}>
-            内存 > 60%
-          </Col>
-          <Col xl={4} lg={24} md={24} sm={24} xs={24}>
-            81%
-          </Col>
-          <Col xl={4} lg={24} md={24} sm={24} xs={24}>
-            2019-03-12
-          </Col>
-          <Col xl={4} lg={24} md={24} sm={24} xs={24}>
-            已解决
-          </Col>
-        </Row>
       </div>
     );
   }

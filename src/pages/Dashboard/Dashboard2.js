@@ -10,24 +10,68 @@ import {
   TimelineChart,
 } from '@/components/Charts';
 import Trend from '../../components/Trend';
-import { Card, Row, Col, Icon, Tooltip } from 'antd';
+import { Row, Col, Icon, Tooltip } from 'antd';
 import moment from 'moment';
 
+const getDataUrl = 'http://127.0.0.1:8081/getHomepageUrl';
+
 class Dashboard2 extends Component {
-  state = {};
+  state = {
+    record: {
+      allCount: 0,
+      host: 0,
+      isSolved: 0,
+      urgent: 0,
+      notSolved: 0,
+      sql: 0,
+    },
+    loadavg: [],
+  };
+
+  componentWillMount() {
+    const loadavg = [];
+    for (let i = 0; i < 20; i += 1) {
+      loadavg.push({
+        x: new Date().getTime() + 1000 * 60 * 30 * i,
+        y1: 1.5,
+      });
+
+      this.setState({
+        loadavg: loadavg,
+      });
+    }
+  }
+
+  componentDidMount() {
+    this.getData();
+  }
+
+  getData() {
+    let _this = this;
+    fetch(getDataUrl, {
+      method: 'GET',
+    })
+      .then(res => res.json())
+      .then(res => {
+        let tmp = [];
+        for (let i = 0; i < res.loadavg.length; i++) {
+          tmp.push({
+            x: new Date().getTime() - 1000 * 60 * 30 * i,
+            y1: res.loadavg[i].loadavg,
+          });
+        }
+        _this.setState({ record: res.record, loadavg: tmp });
+        // console.log(res);
+      });
+  }
 
   render() {
     const visitData = [];
-    const visitData2 = [];
     const beginDay = new Date().getTime();
     for (let i = 0; i < 20; i += 1) {
       visitData.push({
         x: moment(new Date(beginDay + 1000 * 60 * 60 * 24 * i)).format('YYYY-MM-DD'),
         y: Math.floor(Math.random() * 100) + 10,
-      });
-      visitData2.push({
-        x: new Date().getTime() + 1000 * 60 * 30 * i,
-        y1: Math.floor(Math.random() * 10) + 2,
       });
     }
 
@@ -38,6 +82,8 @@ class Dashboard2 extends Component {
         {bordered && <em />}
       </div>
     );
+    const { record, loadavg } = this.state;
+    console.log(loadavg);
     return (
       <AsyncLoadBizCharts>
         <div>
@@ -130,15 +176,15 @@ class Dashboard2 extends Component {
                   style={{ marginLeft: 0, marginRight: 0 }}
                 >
                   <Col className={styles.alarm} span={8}>
-                    <h2>20</h2>
-                    <p>告警总数</p>
+                    <h2>{record.urgent}</h2>
+                    <p>紧急告警</p>
                   </Col>
                   <Col className={styles.alarm} style={{ backgroundColor: '#FAAD14' }} span={8}>
-                    <h2>5</h2>
+                    <h2>{record.notSolved}</h2>
                     <p>未解决告警</p>
                   </Col>
                   <Col className={styles.alarm} style={{ backgroundColor: '#52c41a' }} span={8}>
-                    <h2>15</h2>
+                    <h2>{record.isSolved}</h2>
                     <p>已解决告警</p>
                   </Col>
                 </Row>
@@ -149,19 +195,20 @@ class Dashboard2 extends Component {
                   style={{ marginLeft: 0, marginRight: 0 }}
                 >
                   <Col className={styles.alarm} style={{ backgroundColor: '#108ee9' }} span={8}>
-                    <h2>12</h2>
+                    <h2>{record.host}</h2>
                     <p>服务器告警</p>
                   </Col>
                   <Col className={styles.alarm} style={{ backgroundColor: '#13c2c2' }} span={8}>
-                    <h2>6</h2>
+                    <h2>{record.sql}</h2>
                     <p>数据库告警</p>
                   </Col>
                   <Col className={styles.alarm} style={{ backgroundColor: '#2db7f5' }} span={8}>
-                    <h2>2</h2>
-                    <p>操作告警</p>
+                    <h2>{record.allCount}</h2>
+                    <p>告警总数</p>
                   </Col>
                 </Row>
               </Col>
+
               <Col xl={12} lg={12} md={12} sm={24} xs={24}>
                 <Row>
                   <Col>
@@ -169,7 +216,7 @@ class Dashboard2 extends Component {
                   </Col>
                 </Row>
                 <Row>
-                  <TimelineChart height={250} data={visitData2} titleMap={{ y1: '平均负载' }} />
+                  <TimelineChart height={250} data={loadavg} titleMap={{ y1: '平均负载' }} />
                 </Row>
               </Col>
             </Row>

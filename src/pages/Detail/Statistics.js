@@ -96,7 +96,7 @@ class Statistics extends Component {
                 {item.netSend}KB
               </Col>
               <Col xl={3} lg={24} md={24} sm={24} xs={24}>
-                {item.sqlConnections}
+                {item.connections}
               </Col>
               <Col xl={3} lg={24} md={24} sm={24} xs={24}>
                 {item.tps}

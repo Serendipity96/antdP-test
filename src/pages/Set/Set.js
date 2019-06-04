@@ -146,13 +146,16 @@ class Set extends Component {
     } = this.state;
     let rules = [];
     let levels = [];
+    let ruleTypes = [];
     if (cpuIsChecked) {
       levels.push(cpuLevel);
       rules.push({ typ: 'cpu', op: cpuRule, value: cpuNum });
+      ruleTypes.push(0);
     }
     if (memIsChecked) {
       levels.push(memLevel);
       rules.push({ typ: 'mem', op: memRule, value: memNum });
+      ruleTypes.push(0);
     }
     fetch(postRulesUrl, {
       method: 'POST',
@@ -160,6 +163,7 @@ class Set extends Component {
         id: machine,
         levels: levels,
         rules: rules,
+        ruleTypes: ruleTypes,
       }),
     }).then(() => {
       _this.getRulesList();

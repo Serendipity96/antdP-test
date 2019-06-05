@@ -25,7 +25,9 @@ class Dashboard2 extends Component {
       notSolved: 0,
       sql: 0,
     },
-    loadavg: [],
+    loadavgArr: [],
+    loadAverage: 0,
+    loadMax: 0,
   };
 
   componentWillMount() {
@@ -37,7 +39,7 @@ class Dashboard2 extends Component {
       });
 
       this.setState({
-        loadavg: loadavg,
+        loadavgArr: loadavg,
       });
     }
   }
@@ -53,22 +55,27 @@ class Dashboard2 extends Component {
     })
       .then(res => res.json())
       .then(res => {
+        console.log(res);
         let tmp = [];
-        for (let i = 0; i < res.loadavg.length; i++) {
+        for (let i = 0; i < res.loadavgArr.length; i++) {
           tmp.push({
             x: new Date().getTime() - 1000 * 60 * 30 * i,
-            y1: res.loadavg[i].loadavg,
+            y1: res.loadavgArr[i].loadavg,
           });
         }
-        _this.setState({ record: res.record, loadavg: tmp });
-        // console.log(res);
+        _this.setState({
+          record: res.record,
+          loadavgArr: tmp,
+          loadAverage: res.loadAverage,
+          loadMax: res.loadMax,
+        });
       });
   }
 
   render() {
     const visitData = [];
     const beginDay = new Date().getTime();
-    for (let i = 0; i < 20; i += 1) {
+    for (let i = -20; i < 0; i += 1) {
       visitData.push({
         x: moment(new Date(beginDay + 1000 * 60 * 60 * 24 * i)).format('YYYY-MM-DD'),
         y: Math.floor(Math.random() * 100) + 10,
@@ -82,8 +89,7 @@ class Dashboard2 extends Component {
         {bordered && <em />}
       </div>
     );
-    const { record, loadavg } = this.state;
-    console.log(loadavg);
+    const { record, loadavgArr, loadAverage, loadMax } = this.state;
     return (
       <AsyncLoadBizCharts>
         <div>
@@ -137,8 +143,8 @@ class Dashboard2 extends Component {
                     <Icon type="info-circle-o" />
                   </Tooltip>
                 }
-                total={8.9}
-                footer={<Field label="集群节点最高负载" value={9.9} />}
+                total={loadAverage}
+                footer={<Field label="集群节点最高负载" value={loadMax} />}
                 contentHeight={46}
               >
                 <MiniBar height={46} data={visitData} />
@@ -216,7 +222,7 @@ class Dashboard2 extends Component {
                   </Col>
                 </Row>
                 <Row>
-                  <TimelineChart height={250} data={loadavg} titleMap={{ y1: '平均负载' }} />
+                  <TimelineChart height={250} data={loadavgArr} titleMap={{ y1: '平均负载' }} />
                 </Row>
               </Col>
             </Row>

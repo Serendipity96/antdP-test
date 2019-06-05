@@ -32,7 +32,6 @@ class AlarmRecord extends Component {
   }
 
   changeSolved(e) {
-    console.log(e);
     let { map } = this.state;
     let id = e.target['data-id'];
     let isSolved = e.target.checked;

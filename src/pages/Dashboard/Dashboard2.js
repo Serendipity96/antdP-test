@@ -28,6 +28,11 @@ class Dashboard2 extends Component {
     loadavgArr: [],
     loadAverage: 0,
     loadMax: 0,
+    onlineRate: '33',
+    connection: 0,
+    maxConnection: 1,
+    memTotal: 5,
+    memUsed: 2.5,
   };
 
   componentWillMount() {
@@ -46,6 +51,13 @@ class Dashboard2 extends Component {
 
   componentDidMount() {
     this.getData();
+    this.timer = setInterval(() => {
+      this.getData();
+    }, 10000);
+  }
+
+  componentWillUnmount() {
+    this.timer && clearInterval(this.timer);
   }
 
   getData() {
@@ -68,6 +80,11 @@ class Dashboard2 extends Component {
           loadavgArr: tmp,
           loadAverage: res.loadAverage,
           loadMax: res.loadMax,
+          onlineRate: res.onlineRate,
+          connection: res.connection,
+          maxConnection: res.maxConnection,
+          memTotal: res.memTotal,
+          memUsed: res.memUsed,
         });
       });
   }
@@ -78,7 +95,7 @@ class Dashboard2 extends Component {
     for (let i = -20; i < 0; i += 1) {
       visitData.push({
         x: moment(new Date(beginDay + 1000 * 60 * 60 * 24 * i)).format('YYYY-MM-DD'),
-        y: Math.floor(Math.random() * 100) + 10,
+        y: Math.round(100 * Math.random() * 1) / 100,
       });
     }
 
@@ -89,7 +106,17 @@ class Dashboard2 extends Component {
         {bordered && <em />}
       </div>
     );
-    const { record, loadavgArr, loadAverage, loadMax } = this.state;
+    const {
+      record,
+      loadavgArr,
+      loadAverage,
+      loadMax,
+      onlineRate,
+      connection,
+      maxConnection,
+      memTotal,
+      memUsed,
+    } = this.state;
     return (
       <AsyncLoadBizCharts>
         <div>
@@ -102,8 +129,8 @@ class Dashboard2 extends Component {
                     <Icon type="info-circle-o" />
                   </Tooltip>
                 }
-                total={'80%'}
-                footer={<Field label="平均在线率" value={'60%'} />}
+                total={onlineRate + '%'}
+                footer={<Field label="平均在线率" value={'67%'} />}
                 contentHeight={46}
               >
                 <span>
@@ -122,14 +149,14 @@ class Dashboard2 extends Component {
             </Col>
             <Col xl={6} lg={12} md={12} sm={24} xs={24}>
               <ChartCard
-                title="访问量"
+                title="数据库总连接数"
                 action={
                   <Tooltip title="指标说明">
                     <Icon type="info-circle-o" />
                   </Tooltip>
                 }
-                total={12348}
-                footer={<Field label="最高访问量" value={8964} />}
+                total={connection}
+                footer={<Field label="今日最大连接数" value={maxConnection} />}
                 contentHeight={46}
               >
                 <MiniArea line height={46} data={visitData} />
@@ -150,19 +177,29 @@ class Dashboard2 extends Component {
                 <MiniBar height={46} data={visitData} />
               </ChartCard>
             </Col>
+
             <Col xl={6} lg={12} md={12} sm={24} xs={24}>
               <ChartCard
-                title="集群总数据量"
+                title="集群内存总量"
                 action={
                   <Tooltip title="指标说明">
                     <Icon type="info-circle-o" />
                   </Tooltip>
                 }
-                total="100G/200G"
-                footer={<Field label="总数据量使用率" value={'50%'} />}
+                total={memUsed + 'G/' + memTotal + 'G'}
+                footer={
+                  <Field
+                    label="总内存使用率"
+                    value={Math.round((100 * memUsed) / memTotal) + '%'}
+                  />
+                }
                 contentHeight={46}
               >
-                <MiniProgress percent={50} strokeWidth={8} target={50} />
+                <MiniProgress
+                  percent={Math.round((100 * memUsed) / memTotal)}
+                  strokeWidth={8}
+                  target={Math.round((100 * memUsed) / memTotal)}
+                />
               </ChartCard>
             </Col>
           </Row>

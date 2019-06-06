@@ -100,16 +100,16 @@ class Chart extends Component {
   }
 
   componentDidMount() {
-    // this.timer = setInterval(() => {
-    //   this.getData();
-    // }, 1000);
+    this.timer = setInterval(() => {
+      this.getData();
+    }, 10000);
 
     this.getMachineList();
     this.showResult();
   }
 
   componentWillUnmount() {
-    // this.timer && clearInterval(this.timer); // eslint-disable-line
+    this.timer && clearInterval(this.timer);
   }
 
   getMachineList() {
@@ -128,8 +128,8 @@ class Chart extends Component {
     const timeEnd = this.state.timestamp;
     console.log(id);
     console.log(timeEnd);
-    // const timeStart = timeEnd - 86400;
-    const timeStart = 1557386915;
+    const timeStart = timeEnd - 86400;
+    // const timeStart = 1557386915;
     const timeGran = 1;
     const str = {
       timeEnd: timeEnd,
@@ -224,7 +224,7 @@ class Chart extends Component {
   }
 
   changeDate(date, dateString) {
-    this.setState({ timestamp: Date.parse(dateString) });
+    this.setState({ timestamp: Date.parse(dateString) / 1000 });
   }
 
   disabledEndDate(current) {

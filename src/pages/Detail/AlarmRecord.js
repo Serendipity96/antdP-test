@@ -43,6 +43,48 @@ class AlarmRecord extends Component {
     });
   }
 
+  renderList(list) {
+    if (list.length > 0) {
+      return list.map(item => {
+        return (
+          <Row
+            gutter={24}
+            className={styles.rowDec}
+            style={{ background: '#ffffff', marginRight: 0, marginLeft: 0 }}
+            key={item.id}
+          >
+            <Col xl={4} lg={24} md={24} sm={24} xs={24}>
+              {item.ip_address}
+            </Col>
+            <Col xl={4} lg={24} md={24} sm={24} xs={24}>
+              <Badge count={item.level} />
+            </Col>
+            <Col xl={4} lg={24} md={24} sm={24} xs={24}>
+              {item.rule}
+            </Col>
+            <Col xl={4} lg={24} md={24} sm={24} xs={24}>
+              {item.value}
+            </Col>
+            <Col xl={4} lg={24} md={24} sm={24} xs={24}>
+              {item.timestamp}
+            </Col>
+            <Col xl={4} lg={24} md={24} sm={24} xs={24}>
+              <Checkbox
+                checked={map.get(item.id)}
+                onChange={this.changeSolved.bind(this)}
+                data-id={item.id}
+              >
+                {`${map.get(item.id) ? '已解决' : '未解决'}`}
+              </Checkbox>
+            </Col>
+          </Row>
+        );
+      });
+    } else {
+      return <div>暂无告警记录</div>;
+    }
+  }
+
   render() {
     const { list, map } = this.state;
     return (
@@ -71,41 +113,7 @@ class AlarmRecord extends Component {
             是否解决
           </Col>
         </Row>
-        {list.map(item => {
-          return (
-            <Row
-              gutter={24}
-              className={styles.rowDec}
-              style={{ background: '#ffffff', marginRight: 0, marginLeft: 0 }}
-              key={item.id}
-            >
-              <Col xl={4} lg={24} md={24} sm={24} xs={24}>
-                {item.ip_address}
-              </Col>
-              <Col xl={4} lg={24} md={24} sm={24} xs={24}>
-                <Badge count={item.level} />
-              </Col>
-              <Col xl={4} lg={24} md={24} sm={24} xs={24}>
-                {item.rule}
-              </Col>
-              <Col xl={4} lg={24} md={24} sm={24} xs={24}>
-                {item.value}
-              </Col>
-              <Col xl={4} lg={24} md={24} sm={24} xs={24}>
-                {item.timestamp}
-              </Col>
-              <Col xl={4} lg={24} md={24} sm={24} xs={24}>
-                <Checkbox
-                  checked={map.get(item.id)}
-                  onChange={this.changeSolved.bind(this)}
-                  data-id={item.id}
-                >
-                  {`${map.get(item.id) ? '已解决' : '未解决'}`}
-                </Checkbox>
-              </Col>
-            </Row>
-          );
-        })}
+        {this.renderList(list)}
       </div>
     );
   }

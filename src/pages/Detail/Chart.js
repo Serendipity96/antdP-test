@@ -102,7 +102,7 @@ class Chart extends Component {
   componentDidMount() {
     this.timer = setInterval(() => {
       this.getData();
-    }, 10000);
+    }, 60000);
 
     this.getMachineList();
     this.showResult();
@@ -129,7 +129,6 @@ class Chart extends Component {
     console.log(id);
     console.log(timeEnd);
     const timeStart = timeEnd - 86400;
-    // const timeStart = 1557386915;
     const timeGran = 1;
     const str = {
       timeEnd: timeEnd,

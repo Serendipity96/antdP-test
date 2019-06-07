@@ -53,7 +53,7 @@ class Dashboard2 extends Component {
     this.getData();
     this.timer = setInterval(() => {
       this.getData();
-    }, 10000);
+    }, 60000);
   }
 
   componentWillUnmount() {

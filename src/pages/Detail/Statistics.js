@@ -13,7 +13,7 @@ class Statistics extends Component {
     this.getList();
     this.timer = setInterval(() => {
       this.getList();
-    }, 10000);
+    }, 60000);
   }
 
   componentWillUnmount() {

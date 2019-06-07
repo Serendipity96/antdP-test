@@ -3,10 +3,11 @@ import { Select, Row, Col, DatePicker, Button } from 'antd';
 import { TimelineChart, WaterWave } from '@/components/Charts';
 import { AsyncLoadBizCharts } from '@/components/Charts/AsyncLoadBizCharts';
 import moment from 'moment';
+import httpConfig from '../../httpConfig';
 
 const { Option } = Select;
-const getDetailUrl = 'http://127.0.0.1:8081/getHostParam';
-const getMachineListUrl = 'http://127.0.0.1:8081/getMachineList';
+const getDetailUrl = httpConfig.host + '/getHostParam';
+const getMachineListUrl = httpConfig.host + '/getMachineList';
 
 class Chart extends Component {
   state = {

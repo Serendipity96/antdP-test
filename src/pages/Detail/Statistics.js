@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { Col, Row, Badge } from 'antd';
 import styles from './AlarmRecord.less';
+import httpConfig from '../../httpConfig';
 
-const tableUrl = 'http://127.0.0.1:8081/getTableList';
+const tableUrl = httpConfig.host + '/getTableList';
 
 class Statistics extends Component {
   state = {

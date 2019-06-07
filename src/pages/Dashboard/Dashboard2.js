@@ -12,8 +12,8 @@ import {
 import Trend from '../../components/Trend';
 import { Row, Col, Icon, Tooltip } from 'antd';
 import moment from 'moment';
-
-const getDataUrl = 'http://127.0.0.1:8081/getHomepageUrl';
+import httpConfig from '../../httpConfig';
+const getHomePageUrl = httpConfig.host + '/getHomePageUrl';
 
 class Dashboard2 extends Component {
   state = {
@@ -62,7 +62,7 @@ class Dashboard2 extends Component {
 
   getData() {
     let _this = this;
-    fetch(getDataUrl, {
+    fetch(getHomePageUrl, {
       method: 'GET',
     })
       .then(res => res.json())

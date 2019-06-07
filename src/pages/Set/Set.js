@@ -5,13 +5,15 @@ import styles from './Set.less';
 const TabPane = Tabs.TabPane;
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
-const postRulesUrl = 'http://127.0.0.1:8081/postRules';
-const getRulesListUrl = 'http://127.0.0.1:8081/getRulesList';
-const deleteRuleUrl = 'http://127.0.0.1:8081/deleteRule';
-const getMachineListUrl = 'http://127.0.0.1:8081/getMachineList';
-const postEmailReceiver = 'http://127.0.0.1:8081/postEmailReceiver';
-const getNoticeListUrl = 'http://127.0.0.1:8081/getNoticeList';
-const deleteEmailReceiveUrl = 'http://127.0.0.1:8081/deleteEmailReceive';
+import httpConfig from '../../httpConfig';
+
+const postRulesUrl = httpConfig.host + '/postRules';
+const getRulesListUrl = httpConfig.host + '/getRulesList';
+const deleteRuleUrl = httpConfig.host + '/deleteRule';
+const getMachineListUrl = httpConfig.host + '/getMachineList';
+const postEmailReceiver = httpConfig.host + '/postEmailReceiver';
+const getNoticeListUrl = httpConfig.host + '/getNoticeList';
+const deleteEmailReceiveUrl = httpConfig.host + '/deleteEmailReceive';
 
 class Set extends Component {
   state = {

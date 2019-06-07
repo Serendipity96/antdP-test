@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import { Col, Row, Badge, Checkbox } from 'antd';
 import styles from './AlarmRecord.less';
+import httpConfig from '../../httpConfig';
 
-const alarmRecordListUrl = 'http://127.0.0.1:8081/getAlarmRecordList';
-const changeSolvedUrl = 'http://127.0.0.1:8081/changeSolved';
+const alarmRecordListUrl = httpConfig.host + '/getAlarmRecordList';
+const changeSolvedUrl = httpConfig.host + '/changeSolved';
 
 class AlarmRecord extends Component {
   state = {

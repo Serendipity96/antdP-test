@@ -13,7 +13,7 @@ import Trend from '../../components/Trend';
 import { Row, Col, Icon, Tooltip } from 'antd';
 import moment from 'moment';
 import httpConfig from '../../httpConfig';
-const getHomePageUrl = httpConfig.host + '/getHomePageUrl';
+const getHomePageUrl = httpConfig.host + '/getHomepage';
 
 class Dashboard2 extends Component {
   state = {
@@ -28,7 +28,7 @@ class Dashboard2 extends Component {
     loadavgArr: [],
     loadAverage: 0,
     loadMax: 0,
-    onlineRate: '33',
+    onlineRate: '0',
     connection: 0,
     maxConnection: 1,
     memTotal: 5,
@@ -51,13 +51,13 @@ class Dashboard2 extends Component {
 
   componentDidMount() {
     this.getData();
-    this.timer = setInterval(() => {
-      this.getData();
-    }, 60000);
+    // this.timer = setInterval(() => {
+    //   this.getData();
+    // }, 10000);
   }
 
   componentWillUnmount() {
-    this.timer && clearInterval(this.timer);
+    // this.timer && clearInterval(this.timer);
   }
 
   getData() {
@@ -71,7 +71,7 @@ class Dashboard2 extends Component {
         let tmp = [];
         for (let i = 0; i < res.loadavgArr.length; i++) {
           tmp.push({
-            x: new Date().getTime() - 1000 * 60 * 30 * i,
+            x: new Date().getTime() - 1000 * 60 * 1 * i,
             y1: res.loadavgArr[i].loadavg,
           });
         }

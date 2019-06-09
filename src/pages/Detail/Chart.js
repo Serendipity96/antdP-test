@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Select, Row, Col, DatePicker, Button } from 'antd';
+import { Select, Row, Col, DatePicker, Button, Input } from 'antd';
 import { TimelineChart, WaterWave } from '@/components/Charts';
 import { AsyncLoadBizCharts } from '@/components/Charts/AsyncLoadBizCharts';
 import moment from 'moment';
@@ -24,6 +24,7 @@ class Chart extends Component {
     machineList: [{ id: '0', ip_address: '0.0.0.0' }],
     id: 1,
     timestamp: 1559465597,
+    timeGran: 1,
   };
 
   componentWillMount() {
@@ -86,6 +87,7 @@ class Chart extends Component {
         this.setState({ id: Number(id) });
       }
     }
+    let time = Math.round(new Date().getTime() / 1000);
     this.setState({
       cpuChart: cpu,
       memChart: mem,
@@ -97,20 +99,20 @@ class Chart extends Component {
       keyBufferWriteChart: keyBufferWrite,
       tableLocksChart: tableLocks,
       threadCacheHitChart: threadCacheHit,
+      timestamp: time,
     });
   }
 
   componentDidMount() {
-    this.timer = setInterval(() => {
-      this.getData();
-    }, 60000);
-
-    this.getMachineList();
     this.showResult();
+    // this.timer = setInterval(() => {
+    //   this.showResult();
+    // }, 60000);
+    this.getMachineList();
   }
 
   componentWillUnmount() {
-    this.timer && clearInterval(this.timer);
+    // this.timer && clearInterval(this.timer);
   }
 
   getMachineList() {
@@ -125,14 +127,10 @@ class Chart extends Component {
   }
 
   showResult() {
-    const id = this.state.id;
-    const timeEnd = this.state.timestamp;
-    console.log(id);
-    console.log(timeEnd);
-    const timeStart = timeEnd - 86400;
-    const timeGran = 1;
+    const { id, timestamp, timeGran } = this.state;
+    const timeStart = timestamp - 86400;
     const str = {
-      timeEnd: timeEnd,
+      timeEnd: timestamp,
       timeStart: timeStart,
       timeGran: timeGran,
       hostId: id,
@@ -222,7 +220,9 @@ class Chart extends Component {
   chooseMachine(value) {
     this.setState({ id: value });
   }
-
+  changeTimeGran(e) {
+    this.setState({ timeGran: Number(e.target.value) });
+  }
   changeDate(date, dateString) {
     this.setState({ timestamp: Date.parse(dateString) / 1000 });
   }
@@ -268,6 +268,11 @@ class Chart extends Component {
             defaultValue={moment()}
             onChange={this.changeDate.bind(this)}
             disabledDate={this.disabledEndDate.bind(this)}
+          />
+          <Input
+            placeholder="时间粒度"
+            onChange={this.changeTimeGran.bind(this)}
+            style={{ width: '120px', marginLeft: 10 }}
           />
           <Button type="primary" onClick={this.showResult.bind(this)} style={{ marginLeft: 10 }}>
             查询

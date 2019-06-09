@@ -44,7 +44,7 @@ class AlarmRecord extends Component {
     });
   }
 
-  renderList(list) {
+  renderList(list, map) {
     if (list.length > 0) {
       return list.map(item => {
         return (
@@ -58,7 +58,14 @@ class AlarmRecord extends Component {
               {item.ip_address}
             </Col>
             <Col xl={4} lg={24} md={24} sm={24} xs={24}>
-              <Badge count={item.level} />
+              <Badge
+                count={item.level}
+                style={
+                  `${item.level}` === '普通'
+                    ? { backgroundColor: '#FAAD14' }
+                    : { backgroundColor: '#f50' }
+                }
+              />
             </Col>
             <Col xl={4} lg={24} md={24} sm={24} xs={24}>
               {item.rule}
@@ -114,7 +121,7 @@ class AlarmRecord extends Component {
             是否解决
           </Col>
         </Row>
-        {this.renderList(list)}
+        {this.renderList(list, map)}
       </div>
     );
   }
